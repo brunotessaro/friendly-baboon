@@ -1,0 +1,18 @@
+Point(1) = {0, 0, 0, 0.001};
+Point(2) = {0.1, 0, 0, 0.001};
+Point(3) = {0.1, 0.01, 0, 0.1};
+Point(4) = {0, 0.01, 0, 0.1};
+Line(1) = {1, 2};
+Line(2) = {2, 3};
+Line(3) = {3, 4};
+Line(4) = {4, 1};
+Line Loop(6) = {4, 1, 2, 3};
+Plane Surface(6) = {6};
+Transfinite Surface {6} = {4, 3, 2, 1};
+Transfinite Line {2, 4} = 3 Using Progression 1;
+Transfinite Line {3, 1} = 12 Using Progression 1;
+Recombine Surface {6};
+Physical Line(10)={1,3};
+Physical Line(11)={2};
+Physical Line(12)={4};
+Physical Surface(100) = {6};
