@@ -35,14 +35,6 @@ alpha = params.alpha;
 K = zeros(nNds);
 r = zeros(nNds,1);
 
-%%%%%%%%%%%%%%%%%%%%%%%55555
-
-Mt = zeros(nNds);
-Kt = zeros(nNds);
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
-
 %% Assembly of volume elements contributions
 
 % Loop trough volume elements
@@ -51,20 +43,11 @@ for i=1:size(volElemIdx,1)
     % Retrieve element data and initialize elemental matrices
     iElem = volElemIdx(i);
     [psi, gWts, nElNds, dim] = elementCall(elemType(iElem), [2 2]);
-    %[psi, gWts, nElNds, dim] = elementCall2(elemType(iElem));
     
     Te = T(iElem,1:nElNds);
     Xe = X(Te,:);
     Ke = zeros(size(Te,2));
     re = zeros(size(Te,2),1);
-    
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    Mte = zeros(size(Te,2));
-    Kte = zeros(size(Te,2));
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     % Loop trough element gauss points
     for ig=1:size(gWts,2)
@@ -87,22 +70,8 @@ for i=1:size(volElemIdx,1)
             
             Ke = Ke + gWts(ig)*(M + alpha*dt*Kappa)*det(J);
             
-            
-           %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%----------
-           
-           Mte = Mte + gWts(ig)*(psi.sf(ig,:)'*rho*Cp*psi.sf(ig,:))*det(J);
-           Kte = Kte + gWts(ig)*(B'*k*B)*det(J); 
-            
     end 
     
-    Kt(Te,Te) = Kt(Te, Te) + Kte;
-    Mt(Te,Te) = Mt(Te, Te) + Mte;
-    
-    eigV = eig(Kt(nodeInfo.free,nodeInfo.free),Mt(nodeInfo.free,nodeInfo.free));
-    dtCrit = 2/((1-2*alpha)*max(eigV))
-    
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
     % Assembly of residual and tangent matrix
      r(Te) = r(Te) + re;
      K(Te,Te) = K(Te, Te) + Ke;

@@ -9,7 +9,7 @@ function [J] = jacobCalc(elemType, ig, Xe, psi)
 %
 % Output Variables : J = jacobian matrix.
 %-----------------------------------------------------------------------------------
-% Calls jacobian matrix depending on element type 
+%% Calls jacobian matrix depending on element type 
 
 % Point elements
 if(elemType == 15)
