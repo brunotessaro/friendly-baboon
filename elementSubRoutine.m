@@ -1,12 +1,13 @@
-function [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u, u_n, params)
+function [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u, u_n, c, c_n, params)
 %-----------------------------------------------------------------------------------
 % Description: This function creates the residual and tangent matrix of the problem. 
 %               
-% Input Variables : X = position matrix 
-%                   elemInfo = struct containing elemental info.
+% Input Variables : nodeInfo = struct containing node related info.
+%                   elemInfo = struct containing element related info.
 %                   bcInfo = struct containing boundary conditions info.
-%                   u = solution on previous iteration.
-%                   params = struct containing information of physical parameters.
+%                   u, u_n = temperature in current and previous time step.
+%                   c, c_n = concentration in current and previous time step.
+%                   params = struct containing information of physical and numerical parameters.
 %
 % Output Variables : r = residual vector.
 %                    K = tangent matrix.
