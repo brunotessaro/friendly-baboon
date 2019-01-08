@@ -72,23 +72,24 @@ clear, clc, clear
 % rho = 1;
 % Cp = 1;
 
-% fileName = 'geoAndMesh/testCaseBathe.msh';
-% tags.vol = 100;
-% tags.boundary{1} = {10, 2, 0, 0.04};
-% tags.boundary{2} = {11, 3, 0, 1};
-% k = [0.01 0; 0 0.01];
-% Q = 0;
-% rho = 1;
-% Cp = 0.01;
- 
-fileName = 'geoAndMesh/testCaseReddy2_2D.msh';
+fileName = 'geoAndMesh/testCaseBathe.msh';
 tags.vol = 100;
-tags.boundary{1} = {10, 0, 0};
-k = [1.0 0; 0 1.0];
+tags.boundary{1} = {10, 2, 0, 0.04};
+tags.boundary{2} = {11, 3, 0, 1};
+k = [0.01 0; 0 0.01];
 Q = 0;
 rho = 1;
-Cp = 1;
-u0 = 1;
+Cp = 0.01;
+u0 = 1498.1505;
+ 
+% fileName = 'geoAndMesh/testCaseReddy2_2D.msh';
+% tags.vol = 100;
+% tags.boundary{1} = {10, 0, 0};
+% k = [1.0 0; 0 1.0];
+% Q = 0;
+% rho = 1;
+% Cp = 1;
+% u0 = 1;
 
 % fileName = 'geoAndMesh/testCaseReddy2_1D.msh';
 % tags.vol = 100;
@@ -102,8 +103,9 @@ u0 = 1;
 [nodeInfo, elemInfo, bcInfo] = getMeshInfo(fileName, tags);
 
 %% Physical parameters
-%params.sig = 1.38064852e-23;
-params.sig = 1.18958e-11;
+
+%params.sig = 1.18958e-11;
+params.sig = 1.38064852e-23;
 params.Q = Q*ones(size(nodeInfo.X,1),1);
 params.k = k;
 params.Cp = Cp;
@@ -111,23 +113,29 @@ params.rho = rho;
 u0 = u0*ones(size(nodeInfo.X,1),1);
 
 %% Time discretization
+
 t0 = 0;
-tf = 500;
-dt = 0.5;
-alpha = 0;
+tf = 1;
+dt = 0.1;
+alpha = 1;
 
 nStep = fix((tf-t0)/dt+1);
 t = linspace(t0,tf,nStep);
+
 params.dt = dt;
 params.alpha = alpha;
 
 %% Matrix initialization and BC/IC imposition
 
-% Solution initialization
+% Solution initialization of temperature
 u = zeros(size(nodeInfo.X,1),nStep);
 u(:,1) = u0;
 
-% Imposing temperature BC
+% Solution initialization of concentration
+c = zeros(size(nodeInfo.X,1),nStep);
+c(:,1) = 1;
+
+% Imposing temperature BC (concentration does not requires BC's)
 for i=1:size(bcInfo,2)
     for j=1:size(bcInfo{i}{1},1)
         if bcInfo{i}{2} == 0
@@ -141,9 +149,12 @@ for n=1:nStep-1
     
     % Initialize next newton step
     u(:,n+1) = u(:,n);
+    c(:,n+1) = c(:,n);
     
-    % Calculate residual and tangent matrix for first iteration
-    [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u(:,n+1), u(:,n), params);
+    % Calculate residual and tangent matrix for first newton iteration
+    [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u(:,n+1), u(:,n), c(:,n+1), c(:,n), params);
+    
+    % Calculate aux parameters
     iter = 0;
     ri = norm(r(nodeInfo.free));
     
@@ -152,7 +163,7 @@ for n=1:nStep-1
         
         iter=iter+1;
         u(nodeInfo.free,n+1) = u(nodeInfo.free,n+1) - K(nodeInfo.free,nodeInfo.free)\r(nodeInfo.free);
-        [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u(:,n+1), u(:,n), params);
+        [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u(:,n+1), u(:,n), c(:,n+1), c(:,n), params);
         disp(['Time = ' num2str(dt*n)  '  Iter = ' num2str(iter) '    Res = ' num2str(norm(r(nodeInfo.free))) '    ResAdm = ' num2str(norm(r(nodeInfo.free))/norm(ri))]);     
         
     end
@@ -160,6 +171,6 @@ end
 
 %% Plotting
 writeGmsh(fileName, nodeInfo, u, t)
-u(2,end)
+writeGmsh(fileName, nodeInfo, c, t)
 
 
