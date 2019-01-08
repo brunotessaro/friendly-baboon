@@ -146,4 +146,3 @@ for i=1:size(bcInfo,2)
 end
 
 end
-
