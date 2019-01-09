@@ -75,6 +75,11 @@ for i=1:size(volElemIdx,1)
             Cp_n = 1;
             k = 1;
             k_n = 1;
+            
+            A = 1;
+            eta = 1;
+            omega = 1;
+            omega_n = 1;
 %%%-----------------------------------------------------------%%          
 
     
@@ -83,10 +88,14 @@ for i=1:size(volElemIdx,1)
             F_Q = M*Q(Te);
             
             re_u = re_u + gWts(ig)*(M*rho*Cp*(u(Te) - u_n(Te)) ...
-                                + alpha*dt*(Kappa*k*u(Te) - F_Q) ...
-                                + dt*(1-alpha)*(rho*Cp)/(rho_n*Cp_n)*(Kappa*k_n*u_n(Te) - F_Q))*det(J);     
+                                  +alpha*dt*(Kappa*k*u(Te) - F_Q) ...
+                                  +dt*(1-alpha)*(rho*Cp)/(rho_n*Cp_n)*(Kappa*k_n*u_n(Te) - F_Q))*det(J);
+                            
+            re_c = re_c + gWts(ig)*(M*(c(Te) - c_n(Te)) ...
+                                  -alpha*dt*psi.sf(ig,:)'*A*(1-psi.sf(ig,:)*c(Te))^eta*omega ...              
+                                  -dt*(1-alpha)*psi.sf(ig,:)'*A*(1-psi.sf(ig,:)*c_n(Te))^eta*omega_n)*det(J);
             
-            %Ke = %Ke + gWts(ig)*(M + alpha*dt*Kappa)*det(J);
+           %Ke = %Ke + gWts(ig)*(M + alpha*dt*Kappa)*det(J);
             
     end 
     
