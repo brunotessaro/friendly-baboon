@@ -24,54 +24,6 @@ clear, clc, clear
 
 %------------------------------------------------------------------------------------------------------
 
-% fileName = '1Dgeom.msh';
-% tags.vol = 100;
-% tags.boundary{1} = {10, 0, 3};
-% tags.boundary{2} = {11, 1, 10000000};
-% tags.boundary{3} = {12, 2, 23 25};
-% tags.boundary{4} = {13, 3, 23 0.9};
-
-% fileName = '2Dgeom.msh';
-% tags.vol = 100;
-% tags.boundary{1} = {10, 0, 3};
-% tags.boundary{2} = {30, 1, 0};
-% tags.boundary{3} = {31, 2, 100 0};
-% tags.boundary{4} = {32, 3, 100 0};
-% tags.boundary{5} = {20, 2, 300 0};
-% tags.boundary{6} = {21, 3, 300 0};
-% tags.boundary{7} = {40, 2, 300 0};
-% tags.boundary{8} = {41, 3, 300 0};
-% tags.boundary{9} = {33, 1, 50000};
-% 
-% fileName = 'testCaseArpaci.msh';
-% tags.vol = 100;
-% tags.boundary{1} = {10, 0, 1};
-% tags.boundary{2} = {11, 1, 0};
-
-% fileName = 'geoAndMesh/testCaseBergheau2D.msh';
-% tags.vol = 100;
-% tags.boundary{1} = {12, 0, 20};
-% tags.boundary{2} = {11, 2, 20, 2000};
-% k = [30 0; 0 30];
-% Q = 5e7;
-
-% fileName = 'geoAndMesh/testCaseBergheau1D.msh';
-% tags.vol = 100;
-% tags.boundary{1} = {10, 0, 20};
-% tags.boundary{2} = {11, 2, 20, 2000};
-% k = 30;
-% Q = 5e7;
-
-% fileName = 'geoAndMesh/testCaseReddy.msh';
-% tags.vol = 100;
-% tags.boundary{1} = {10, 0, 25};
-% tags.boundary{2} = {11, 2, 25, 60};
-% tags.boundary{3} = {12, 1, 3500};
-% k = [0.4 0; 0 0.4];
-% Q = 1.353e5;
-% rho = 1;
-% Cp = 1;
-
 fileName = 'geoAndMesh/testCaseBathe.msh';
 tags.vol = 100;
 tags.boundary{1} = {10, 2, 0, 0.04};
@@ -81,35 +33,20 @@ Q = 0;
 rho = 1;
 Cp = 0.01;
 u0 = 1498.1505;
- 
-% fileName = 'geoAndMesh/testCaseReddy2_2D.msh';
-% tags.vol = 100;
-% tags.boundary{1} = {10, 0, 0};
-% k = [1.0 0; 0 1.0];
-% Q = 0;
-% rho = 1;
-% Cp = 1;
-% u0 = 1;
-
-% fileName = 'geoAndMesh/testCaseReddy2_1D.msh';
-% tags.vol = 100;
-% tags.boundary{1} = {10, 0, 0};
-% k = 1;
-% Q = 0;
-% rho = 1;
-% Cp = 1;
-% u0 = 1;
+A = 1;
+eta = 1;
 
 [nodeInfo, elemInfo, bcInfo] = getMeshInfo(fileName, tags);
 
 %% Physical parameters
 
-%params.sig = 1.18958e-11;
 params.sig = 1.38064852e-23;
-params.Q = Q*ones(size(nodeInfo.X,1),1);
 params.k = k;
 params.Cp = Cp;
 params.rho = rho;
+params.A = A;
+params.eta = eta;
+params.Q = Q*ones(size(nodeInfo.X,1),1);
 u0 = u0*ones(size(nodeInfo.X,1),1);
 
 %% Time discretization
