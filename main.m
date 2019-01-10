@@ -72,7 +72,7 @@ u(:,1) = u0;
 c = zeros(size(nodeInfo.X,1),nStep);
 c(:,1) = 1;
 
-% Imposing temperature BC (concentration does not requires BC's)
+% Imposing temperature BC 
 for i=1:size(bcInfo,2)
     for j=1:size(bcInfo{i}{1},1)
         if bcInfo{i}{2} == 0
@@ -84,29 +84,46 @@ end
 %% Start the time loop
 for n=1:nStep-1
     
+    % Calculate rates at first time step
+    [rates] = getFieldRates(nodeInfo, elemInfo, bcInfo, u(:,n), c(:,n), params);
+    
     % Initialize next newton step
     u(:,n+1) = u(:,n);
     c(:,n+1) = c(:,n);
     
-    % Calculate residual and tangent matrix for first newton iteration
-    [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u(:,n+1), u(:,n), c(:,n+1), c(:,n), params);
+    % Calculate residual and tangent matrix
+    [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u(:,n+1), u(:,n), c(:,n+1), c(:,n), rates, params);
     
     % Calculate aux parameters
     iter = 0;
     ri = norm(r(nodeInfo.free));
     
     % Start newton loop
-    while(norm(r(nodeInfo.free))/ri > 1e-8)
+    while(norm(r(nodeInfo.free))/ri > 1e-6)
         
+        % Iteration counting
         iter=iter+1;
-        u(nodeInfo.free,n+1) = u(nodeInfo.free,n+1) - K(nodeInfo.free,nodeInfo.free)\r(nodeInfo.free);
-        [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u(:,n+1), u(:,n), c(:,n+1), c(:,n), params);
+        
+        % Solution vector assembly
+        sol = [u(:,n+1) ; c(:,n+1)];
+        
+        % Calculate solution on the next iterative step
+        sol(nodeInfo.free) = sol(nodeInfo.free) - K(nodeInfo.free,nodeInfo.free)\r(nodeInfo.free);
+        
+        % Mount solution vectors
+        u(:,n+1) = sol(1:nNds);
+        c(:,n+1) = sol(nNds+1:end);
+        
+        % Calculate residual and tangent matrix
+        [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u(:,n+1), u(:,n), c(:,n+1), c(:,n), rates, params);
+        
+        % Display iteration info
         disp(['Time = ' num2str(dt*n)  '  Iter = ' num2str(iter) '    Res = ' num2str(norm(r(nodeInfo.free))) '    ResAdm = ' num2str(norm(r(nodeInfo.free))/norm(ri))]);     
         
     end
 end
 
-%% Plotting
+%% Writting gmsh files for vizualization
 writeGmsh(fileName, nodeInfo, u, t)
 writeGmsh(fileName, nodeInfo, c, t)
 
