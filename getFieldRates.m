@@ -1,4 +1,17 @@
 function [rates] = getFieldRates(nodeInfo, elemInfo, bcInfo, u, c, params)
+%-----------------------------------------------------------------------------------
+% Description: This function calculate the temperature and concentration rates in a given time step. 
+%               
+% Input Variables : nodeInfo = struct containing node related info.
+%                   elemInfo = struct containing element related info.
+%                   bcInfo = struct containing boundary conditions info.
+%                   u = temperature on the desired time step.
+%                   c = concentration on the desired time step.
+%                   params = struct containing information of physical and numerical parameters.
+%
+% Output Variables : rates = struct containing the rates in the desired time step.
+%            
+%-----------------------------------------------------------------------------------
 %% Get auxiliary paramenters 
 
 % Get mesh parameters
