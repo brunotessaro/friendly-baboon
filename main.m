@@ -36,6 +36,7 @@ u0 = 1498.1505;
 A = 1;
 eta = 1;
 
+
 [nodeInfo, elemInfo, bcInfo] = getMeshInfo(fileName, tags);
 
 %% Physical parameters

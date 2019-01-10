@@ -199,7 +199,7 @@ end
 %% Calculate rates
 
 % Solve the system to get rates
-udot(nodeInfo.free) = Ku(nodeInfo.free,nodeInfo.free)\Fu(nodeInfo.free);
+udot(nodeInfo.free(1:nNds)) = Ku(nodeInfo.free(1:nNds),nodeInfo.free(1:nNds))\Fu(nodeInfo.free(1:nNds));
 cdot = Kc\Fc;
 
 % Assign to struct

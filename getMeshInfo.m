@@ -44,7 +44,10 @@ end
 volIdx = unique(nonzeros(T(volElemIdx,:)),'stable');
 
 % Get free Nodes
-free = volIdx;
+% Here we double the nodes since at each node there is on temperature and one concentration value,
+% since there is no BC's for concentration and temperature is treated as the first equation nothing has
+% to be done restrained node wise.
+free = [volIdx ; size(X,1)+volIdx];
 for i=1:size(restr,1)
     free(find(free == restr(i))) = [];
 end
