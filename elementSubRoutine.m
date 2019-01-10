@@ -82,6 +82,11 @@ for i=1:size(volElemIdx,1)
         Cp = igMatParams.Cp;
         rho = igMatParams.rho;
         omega = igMatParams.omega;
+        dk_c = igMatParams.dk_c;
+        dCp_c = igMatParams.dCp_c;
+        drho_c = igMatParams.drho_c;
+        domega_u = igMatParams.domega_u;
+        
         
         % Calculate residual vectors for temperature and concentration
         re_u = re_u + gWts(ig)*(M*rho*Cp*(u(Te) - u_n(Te) - dt*(1-alpha)*udot_n(Te)) ...
@@ -91,7 +96,13 @@ for i=1:size(volElemIdx,1)
                                 - alpha*dt*psi.sf(ig,:)'*A*(1-psi.sf(ig,:)*c(Te))^eta*omega)*det(J);
         
         % Calculate tangent matrices
-        %Ke = %Ke + gWts(ig)*(M + alpha*dt*Kappa)*det(J);
+        Ke_uu = Ke_uu + gWts(ig)*(M*rho*Cp + alpha*dt*B'*k*B)*det(J);
+        Ke_uc = Ke_uu + gWts(ig)*(M*(dCp_c*rho + Cp*drho_c)*(psi.sf(ig,:)*(u(Te) - u_n(Te) - dt*(1-alpha)*udot_n(Te))) ...
+                                  + alpha*dt*(B'*dk_c*B*u(Te))*psi.sf(ig,:))*det(J);
+        
+        Ke_cu = Ke_cu + gWts(ig)*(-alpha*dt*M*A*(1-psi.sf(ig,:)*c(Te))^eta*domega_u)*det(J);
+        Ke_cc = Ke_cc + gWts(ig)*(M + alpha*dt*M*A*eta*(1-psi.sf(ig,:)*c(Te))^(eta-1)*omega)*det(J); 
+                              
         
     end
     
@@ -168,10 +179,14 @@ for i=1:size(bcInfo,2)
                 % Get ambient temperature and convection coeff
                 [igMatParams] = materialSubRoutine(psi.sf(ig,:)*u(Te), psi.sf(ig,:)*c(Te));
                 h = igMatParams.h;
+                dh_u = igMatParams.dh_u;
                 u_a = bcInfo{i}{3};
                 
-                % Calculate temperature eq. residual for convective bc and tangets
+                % Calculate temperature eq. residual for convective bc
                 re_u = re_u + gWts(ig)*(-alpha*dt*psi.sf(ig,:)'*h*(u_a - psi.sf(ig,:)*u(Te)))*det(J);
+                
+                % Calculate tangents
+                Ke_uu = Ke_uu + gWts(ig)*(-alpha*dt*psi.sf(ig,:)'*(dh_u*(u_a - psi.sf(ig,:)*u(Te)) - h)*psi.sf(ig,:))*det(J);
                 
             end
             
@@ -206,11 +221,16 @@ for i=1:size(bcInfo,2)
                 % Get ambient temperature and emissivity coeff
                 [igMatParams] = materialSubRoutine(psi.sf(ig,:)*u(Te), psi.sf(ig,:)*c(Te));
                 eps = igMatParams.eps;
+                deps_u = igMatParams.deps_u;
                 u_a = bcInfo{i}{3};
                 
                 % Calculate temperature eq. residual for radiative bc and tangets
                 re_u = re_u + gWts(ig)*(-alpha*dt*(psi.sf(ig,:)'*sig*eps*(u_a^4 - (psi.sf(ig,:)*u(Te))^4)))*det(J);
                 
+                % Calculate tangents
+                Ke_uu = Ke_uu + gWts(ig)*(-alpha*dt*psi.sf(ig,:)'*sig*(deps_u*(u_a^4 - (psi.sf(ig,:)*u(Te))^4)  ...
+                                          -4*eps*(psi.sf(ig,:)*u(Te))^3)*psi.sf(ig,:))*det(J);
+
             end
             
             % Assembly of global matrices
@@ -224,8 +244,8 @@ end
 %% Grouping global matrices for newton iteration
 
 r = [r_u ; r_c];
-K = [K_uu , K_uc ;
-     K_cu , K_cc ];
+K = [K_uu , K_uc;
+     K_cu , K_cc];
 
 end
 
