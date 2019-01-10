@@ -7,7 +7,8 @@
 clear, clc, clear
 
 %% Geometry input
-
+%--------------------------------------------------------------------------------------------------------
+%
 % Volume, boundary conditions and tags explanation:
 %
 % tags.vol: tag representing volume.
@@ -21,9 +22,8 @@ clear, clc, clear
 %                 {2} = 1 - imposed flux     ->  where -> {3} = imposed flux value 
 %                 {2} = 2 - convective flux  ->  where -> {3:4} = ambient temp and convctive coeff
 %                 {2} = 3 - radiative flux   ->  where -> {3:4} = ambient temp and emissivety
-
-%------------------------------------------------------------------------------------------------------
-
+%
+%--------------------------------------------------------------------------------------------------------
 fileName = 'geoAndMesh/testCaseBathe.msh';
 tags.vol = 100;
 tags.boundary{1} = {10, 2, 0, 0.04};
@@ -40,7 +40,6 @@ eta = 1;
 nNds = size(nodeInfo.X,1);
 
 %% Physical parameters
-
 params.sig = 1.38064852e-23;
 params.k = k;
 params.Cp = Cp;
@@ -51,7 +50,6 @@ params.Q = Q*ones(nNds,1);
 u0 = u0*ones(size(nNds,1),1);
 
 %% Time discretization
-
 t0 = 0;
 tf = 1;
 dt = 0.1;
@@ -63,7 +61,6 @@ params.dt = dt;
 params.alpha = alpha;
 
 %% Matrix initialization and BC/IC imposition
-
 % Solution initialization
 u = zeros(nNds,nStep);
 c = zeros(nNds,nStep);

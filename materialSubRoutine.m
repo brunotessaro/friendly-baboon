@@ -1,4 +1,4 @@
-function [igMatParams] = materialSubRoutine(u, c)
+function [igMatParams] = materialSubRoutine(u, c, params)
 %-----------------------------------------------------------------------------------
 % Description: This function creates the residual and tangent matrix of the problem. 
 %               
@@ -11,13 +11,22 @@ function [igMatParams] = materialSubRoutine(u, c)
 %% Get auxiliary paramenters 
 
 % For later
+k_a = params.k_a;
+k_b = params.k_b;
+
+rho_a = params.rho_a;
+rho_b = params.rho_b;
+
+
+params.k_g = 1;
+
 
 %% Calculate integration point quantities
-k = 1;
+k = (k_a*k_b)/(k_a*(1-c)+k_b*c);
 Cp = 1;
-rho = 1;
-h = 1;
-eps = 1;
+rho = (1-c)*rho_b + c*rho_a;
+h = 0.14*k_g*(Pr*(g*beta)/nu*(u - u_a))^(1/3);
+eps = 2.0408163265306E-4*u+0.74591836734694;
 omega = 1;
 
 dk_c = 1;
