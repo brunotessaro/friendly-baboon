@@ -36,8 +36,8 @@ u0 = 1498.1505;
 A = 1;
 eta = 1;
 
-
 [nodeInfo, elemInfo, bcInfo] = getMeshInfo(fileName, tags);
+nNds = size(nodeInfo.X,1);
 
 %% Physical parameters
 
@@ -47,8 +47,8 @@ params.Cp = Cp;
 params.rho = rho;
 params.A = A;
 params.eta = eta;
-params.Q = Q*ones(size(nodeInfo.X,1),1);
-u0 = u0*ones(size(nodeInfo.X,1),1);
+params.Q = Q*ones(nNds,1);
+u0 = u0*ones(size(nNds,1),1);
 
 %% Time discretization
 
@@ -56,7 +56,6 @@ t0 = 0;
 tf = 1;
 dt = 0.1;
 alpha = 1;
-
 nStep = fix((tf-t0)/dt+1);
 t = linspace(t0,tf,nStep);
 
@@ -65,12 +64,13 @@ params.alpha = alpha;
 
 %% Matrix initialization and BC/IC imposition
 
-% Solution initialization of temperature
-u = zeros(size(nodeInfo.X,1),nStep);
-u(:,1) = u0;
+% Solution initialization
+u = zeros(nNds,nStep);
+c = zeros(nNds,nStep);
+dphi = zeros(2*nNds,1);
 
-% Solution initialization of concentration
-c = zeros(size(nodeInfo.X,1),nStep);
+% Initial condition imposition
+u(:,1) = u0;
 c(:,1) = 1;
 
 % Imposing temperature BC 
@@ -102,18 +102,15 @@ for n=1:nStep-1
     % Start newton loop
     while(norm(r(nodeInfo.free))/ri > 1e-6)
         
-        % Iteration counting
+        % Iteration counter
         iter=iter+1;
-        
-        % Solution vector assembly
-        sol = [u(:,n+1) ; c(:,n+1)];
-        
+            
         % Calculate solution on the next iterative step
-        sol(nodeInfo.free) = sol(nodeInfo.free) - K(nodeInfo.free,nodeInfo.free)\r(nodeInfo.free);
+        dphi(nodeInfo.free) = - K(nodeInfo.free,nodeInfo.free)\r(nodeInfo.free);
         
         % Mount solution vectors
-        u(:,n+1) = sol(1:nNds);
-        c(:,n+1) = sol(nNds+1:end);
+        u(:,n+1) =  u(:,n+1) + dphi(1:nNds);
+        c(:,n+1) =  c(:,n+1) + dphi(nNds+1:2*nNds);
         
         % Calculate residual and tangent matrix
         [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u(:,n+1), u(:,n), c(:,n+1), c(:,n), rates, params);
