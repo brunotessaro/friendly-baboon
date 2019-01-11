@@ -84,6 +84,7 @@ for i=1:size(volElemIdx,1)
         omega = igMatParams.omega;
         dk_c = igMatParams.dk_c;
         dCp_c = igMatParams.dCp_c;
+        dCp_u = igMatParams.dCp_u;
         drho_c = igMatParams.drho_c;
         domega_u = igMatParams.domega_u;
         
@@ -96,7 +97,7 @@ for i=1:size(volElemIdx,1)
                                 - alpha*dt*psi.sf(ig,:)'*A*(1-psi.sf(ig,:)*c(Te))^eta*omega)*det(J);
         
         % Calculate tangent matrices
-        Ke_uu = Ke_uu + gWts(ig)*(M*rho*Cp + alpha*dt*B'*k*B)*det(J);
+        Ke_uu = Ke_uu + gWts(ig)*(M*rho*Cp + alpha*dt*B'*k*B + M*dCp_u*rho*(psi.sf(ig,:)*(u(Te) - u_n(Te) - dt*(1-alpha)*udot_n(Te))))*det(J);
         Ke_uc = Ke_uu + gWts(ig)*(M*(dCp_c*rho + Cp*drho_c)*(psi.sf(ig,:)*(u(Te) - u_n(Te) - dt*(1-alpha)*udot_n(Te))) ...
                                   + alpha*dt*(B'*dk_c*B*u(Te))*psi.sf(ig,:))*det(J);
         
