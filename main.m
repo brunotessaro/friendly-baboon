@@ -28,7 +28,6 @@ fileName = 'geoAndMesh/testCaseBathe.msh';
 tags.vol = 100;
 tags.boundary{1} = {10, 2, 0, 0.04};
 tags.boundary{2} = {11, 3, 0, 1};
-k = [0.01 0; 0 0.01];
 Q = 0;
 rho = 1;
 Cp = 0.01;
@@ -41,7 +40,6 @@ nNds = size(nodeInfo.X,1);
 
 %% Physical parameters
 params.sig = 1.38064852e-23;
-params.k = k;
 params.Cp = Cp;
 params.rho = rho;
 params.A = A;
