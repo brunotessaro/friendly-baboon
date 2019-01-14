@@ -1,8 +1,7 @@
 %--------------------------------------------------------------------------------------------------------
-% Matlab code for getting mesh and geometry info.
+% Matlab code for solving the Bai's equations.
 % Author: Bruno Aguirre Tessaro, IST - Lisboa.
 % Contact: bruno.tessaro@tecnico.ulisboa.com
-% Date: 14/01/2019
 %--------------------------------------------------------------------------------------------------------
 clear, clc, clear
 
