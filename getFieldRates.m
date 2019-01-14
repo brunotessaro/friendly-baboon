@@ -6,7 +6,9 @@ function [rates] = getFieldRates(nodeInfo, elemInfo, bcInfo, u, u_n, c, c_n, par
 %                   elemInfo = struct containing element related info.
 %                   bcInfo = struct containing boundary conditions info.
 %                   u = temperature on the desired time step.
+%                   u_n = temperature on the previous time step.
 %                   c = concentration on the desired time step.
+%                   c_n = concentration on the previous time step.
 %                   params = struct containing information of physical and numerical parameters.
 %
 % Output Variables : rates = struct containing the rates in the desired time step.
