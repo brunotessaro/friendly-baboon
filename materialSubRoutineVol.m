@@ -1,9 +1,11 @@
-function [igMatParams] = materialSubRoutineVol(u, c)
+function [igMatParams] = materialSubRoutineVol(u, u_n, c, c_n)
 %-----------------------------------------------------------------------------------
 % Description: This function calculates the volumetric material properties and derivatives. 
 %               
 % Input Variables : u = temeprature on integration point.
+%                   u_n = temeprature on integration point on previous time step.
 %                   c = concentration on integration point.
+%                   c_n = concentration on integration point on previous time step.
 %
 % Output Variables : matParams = struct containing all the quantities calculated in the gauss pt.
 %                    
@@ -34,12 +36,19 @@ k = (k_a*k_b)/(k_a*(1-c)+k_b*c)*eye(2);
 dk_c = (k_a*k_b*(k_b - k_a))/((1-c)*(k_a + c*k_b))^2;
 
 % Specific heat and concentration derivative
-f = (Mi*(1 - c))/(Mi*(1 - c) + Mf*c);
+% Obs: since the author uses a numerical trick to calculate the derivative dc/du one has to place
+% countermeasures in the case u does not change (u == u_n) in order to avoid division by 0.
+f = (rho_b*(1 - c))/(rho_b*(1 - c) + rho_a*c);
+if (u == u_n) 
+    Cp = Cp_b*f + Cp_a*(1-f);
+    dCp_c = ((Cp_a - Cp_b)*rho_b*rho_a)/(c*(rho_a - rho_b) + rho_b)^2;
+    dCp_u = 0;
+else
+    Cp = Cp_b*f + Cp_a*(1-f) + (c - c_n)/(u - u_n)*Cp_d;
+    dCp_c = ((Cp_a - Cp_b)*rho_b*rho_a)/(c*(rho_a - rho_b) + rho_b)^2 + Cp_d/(u - u_n);
+    dCp_u = ((c_n-c)*Cp_d)/(u-u_n)^2;
+end
 
-Cp = Cp_b*f + Cp_a(1-f) + (c - c_n)/(u - u_n)*Cp_d;
-
-dCp_c = ((Cp_a - Cp_b)*Mi*Mf)/(c*(Mf - Mi) + Mi)^2+Cp_d/(u - u_n);
-dCp_u = ((c_n-c)*Cp_d)/(u-u_n^2);
 
 % Density and concentration derivative
 rho = (1-c)*rho_b + c*rho_a;

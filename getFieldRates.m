@@ -1,4 +1,4 @@
-function [rates] = getFieldRates(nodeInfo, elemInfo, bcInfo, u, c, params)
+function [rates] = getFieldRates(nodeInfo, elemInfo, bcInfo, u, u_n, c, c_n, params)
 %-----------------------------------------------------------------------------------
 % Description: This function calculate the temperature and concentration rates in a given time step. 
 %               
@@ -66,7 +66,7 @@ for i=1:size(volElemIdx,1)
             M = psi.sf(ig,:)'*psi.sf(ig,:);
             
             % Get material point quantities
-            [igMatParams] = materialSubRoutineVol(psi.sf(ig,:)*u(Te), psi.sf(ig,:)*c(Te));
+            [igMatParams] = materialSubRoutineVol(psi.sf(ig,:)*u(Te),psi.sf(ig,:)*u_n(Te),psi.sf(ig,:)*c(Te),psi.sf(ig,:)*c_n(Te));
             k = igMatParams.k;
             Cp = igMatParams.Cp;
             rho = igMatParams.rho;

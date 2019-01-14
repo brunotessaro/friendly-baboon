@@ -81,8 +81,13 @@ end
 for n=1:nStep-1
     
     % Calculate rates at first time step
-    [rates] = getFieldRates(nodeInfo, elemInfo, bcInfo, u(:,n), c(:,n), params);
-    
+    % Obs: Since rates are calculated in n and the n-1 is required for the calculation of Cp in the 
+    % material point one has to countermeasure when n == 1
+    if n == 1
+        [rates] = getFieldRates(nodeInfo, elemInfo, bcInfo, u(:,n), u(:,n), c(:,n) ,c(:,n), params);
+    else
+        [rates] = getFieldRates(nodeInfo, elemInfo, bcInfo, u(:,n), u(:,n-1), c(:,n), c(:,n-1), params);
+    end
     % Initialize next newton step
     u(:,n+1) = u(:,n);
     c(:,n+1) = c(:,n);
