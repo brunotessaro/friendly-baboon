@@ -1,4 +1,4 @@
-function [igMatParams] = materialSubRoutineVol(u, u_n, c, c_n)
+function [igMatParams] = materialSubRoutineVol(u, u_n, c, c_n, params)
 %-----------------------------------------------------------------------------------
 % Description: This function calculates the volumetric material properties and derivatives. 
 %               
@@ -6,6 +6,7 @@ function [igMatParams] = materialSubRoutineVol(u, u_n, c, c_n)
 %                   u_n = temeprature on integration point on previous time step.
 %                   c = concentration on integration point.
 %                   c_n = concentration on integration point on previous time step.
+%                   params = struct containing material parameters.
 %
 % Output Variables : matParams = struct containing all the quantities calculated in the gauss pt.
 %                    
@@ -13,21 +14,21 @@ function [igMatParams] = materialSubRoutineVol(u, u_n, c, c_n)
 %% Get auxiliary paramenters 
 
 % Conduction coeff parameters
-k_a = 0.1;
-k_b = 0.35;
+k_a = params.k_a;
+k_b = params.k_b;
 
 % Rho parameters
-rho_a = 1141;
-rho_b = 1870;
+rho_a = params.rho_a;
+rho_b = params.rho_b;
 
 % Specific heat capacity parameters
-Cp_a = 840;
-Cp_b = 1170;
-Cp_d = 234e3;
+Cp_a = params.Cp_a;
+Cp_b = params.Cp_b;
+Cp_d = params.Cp_d;
 
 % Omega parameters
-R = 8.314;
-E = 77878;
+R = params.R;
+E = params.E;
 
 %% Calculate integration point quantities
 
@@ -48,7 +49,6 @@ else
     dCp_c = ((Cp_a - Cp_b)*rho_b*rho_a)/(c*(rho_a - rho_b) + rho_b)^2 + Cp_d/(u - u_n);
     dCp_u = ((c_n-c)*Cp_d)/(u-u_n)^2;
 end
-
 
 % Density and concentration derivative
 rho = (1-c)*rho_b + c*rho_a;

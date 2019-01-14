@@ -1,0 +1,57 @@
+#
+# Name of problem.
+#
+Bai's problem -- Test 1
+#
+# Mesh file name and path.
+# 
+geoAndMesh/testCaseBathe.msh
+#
+# Volume info: number of volume tag
+#
+100
+#
+# Boundary condition info: number of boundary physical tags \n
+#                          physical tag, type of BC, value_1, value_2.
+#
+2
+10 2 0 0.04
+11 3 0 1
+#
+# Time discretization parameters: t0, tf, dt, alpha.
+#
+0 1 0.1 1
+#
+# Initial conditions: u0, c0.
+#
+20 1
+#
+# General physical parameters: E, A, eta, R, Cp_d, sig, Q. 
+#
+77878 36990 1.08 8.314 234000 1.38064852e-23 0
+#
+# Before and after decomposition physical parameters: rho_b, rho_a, Cp_b, Cp_a, k_b, k_a.
+#
+1870 1141 1170 840 0.35 0.1
+#
+# Boundary physical parameters: k_g, Pr, g, beta, nu, eps_1, eps_2.
+#
+0.03 0.722 9.81 3.43e-3 1.57e-5 2.0408163265306E-4 0.74591836734694
+#
+#--------------------------------------------------------------------------------------------------------
+#
+# Volume, boundary conditions and tags explanation:
+#
+# tags.vol: tag representing volume.
+# tags.boundary: tags representing boundary, one for each BC.
+#                           
+#   Physical Tag: tags.boundary{any}{1}
+#   Type of BC: tags.boundary{any}{2} 
+#   BC values: tags.boundary{any}{3:end} 
+#
+#   Types can be: {2} = 0 - imposed temp     ->  where -> {3} = imposed temp value 
+#                 {2} = 1 - imposed flux     ->  where -> {3} = imposed flux value 
+#                 {2} = 2 - convective flux  ->  where -> {3:4} = ambient temp and convctive coeff
+#                 {2} = 3 - radiative flux   ->  where -> {3:4} = ambient temp and emissivity
+#
+#--------------------------------------------------------------------------------------------------------

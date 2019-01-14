@@ -1,72 +1,44 @@
 %--------------------------------------------------------------------------------------------------------
 % Matlab code for getting mesh and geometry info.
 % Author: Bruno Aguirre Tessaro, IST - Lisboa.
-% Contact: bruno.tessaro@gmail.com
-% Date: 05/12/2018
+% Contact: bruno.tessaro@tecnico.ulisboa.com
+% Date: 14/01/2019
 %--------------------------------------------------------------------------------------------------------
 clear, clc, clear
 
-%% Geometry input
-%--------------------------------------------------------------------------------------------------------
-%
-% Volume, boundary conditions and tags explanation:
-%
-% tags.vol: tag representing volume.
-% tags.boundary: tags representing boundary, one for each BC.
-%                           
-%   Physical Tag: tags.boundary{any}{011}
-%   Type of BC: tags.boundary{any}{2} 
-%   BC values: tags.boundary{any}{3:end} 
-%
-%   Types can be: {2} = 0 - imposed temp     ->  where -> {3} = imposed temp value 
-%                 {2} = 1 - imposed flux     ->  where -> {3} = imposed flux value 
-%                 {2} = 2 - convective flux  ->  where -> {3:4} = ambient temp and convctive coeff
-%                 {2} = 3 - radiative flux   ->  where -> {3:4} = ambient temp and emissivety
-%
-%--------------------------------------------------------------------------------------------------------
-fileName = 'geoAndMesh/testCaseBathe.msh';
-tags.vol = 100;
-tags.boundary{1} = {10, 2, 0, 0.04};
-tags.boundary{2} = {11, 3, 0, 1};
-Q = 0;
-rho = 1;
-Cp = 0.01;
-u0 = 1498.1505;
-A = 1;
-eta = 1;
+%% Data reading and assignments
 
-[nodeInfo, elemInfo, bcInfo] = getMeshInfo(fileName, tags);
+% Read data from input file
+[matParams, meshParams, timeParams] = readData('test_1.inp');
+
+% Get mesh information and number of nodes
+[nodeInfo, elemInfo, bcInfo] = getMeshInfo(meshParams.fileName, meshParams.tags);
 nNds = size(nodeInfo.X,1);
 
-%% Physical parameters
-params.sig = 1.38064852e-23;
-params.Cp = Cp;
-params.rho = rho;
-params.A = A;
-params.eta = eta;
-params.Q = Q*ones(nNds,1);
-u0 = u0*ones(size(nNds,1),1);
+% Struct assigning and data fixing (here dt and alpha are introduced in params to save space)
+params = matParams;
+params.Q = params.Q*ones(nNds,1);
+params.dt = timeParams.dt;
+params.alpha = timeParams.alpha;
 
 %% Time discretization
-t0 = 0;
-tf = 1;
-dt = 0.1;
-alpha = 1;
-nStep = fix((tf-t0)/dt+1);
-t = linspace(t0,tf,nStep);
 
-params.dt = dt;
-params.alpha = alpha;
+% Get number of steps
+nStep = fix((timeParams.tf-timeParams.t0)/timeParams.dt + 1);
+
+% Get time vector
+t = linspace(timeParams.t0,timeParams.tf,nStep);
 
 %% Matrix initialization and BC/IC imposition
+
 % Solution initialization
 u = zeros(nNds,nStep);
 c = zeros(nNds,nStep);
 dphi = zeros(2*nNds,1);
 
 % Initial condition imposition
-u(:,1) = u0;
-c(:,1) = 1;
+u(:,1) = timeParams.u0*ones(nNds,1);
+c(:,1) = timeParams.c0*ones(nNds,1);
 
 % Imposing temperature BC 
 for i=1:size(bcInfo,2)
@@ -116,13 +88,13 @@ for n=1:nStep-1
         [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u(:,n+1), u(:,n), c(:,n+1), c(:,n), rates, params);
         
         % Display iteration info
-        disp(['Time = ' num2str(dt*n)  '  Iter = ' num2str(iter) '    Res = ' num2str(norm(r(nodeInfo.free))) '    ResAdm = ' num2str(norm(r(nodeInfo.free))/norm(ri))]);     
+        disp(['Time = ' num2str(timeParams.dt*n)  '  Iter = ' num2str(iter) '    Res = ' num2str(norm(r(nodeInfo.free))) '    ResAdm = ' num2str(norm(r(nodeInfo.free))/norm(ri))]);     
         
     end
 end
 
 %% Writting gmsh files for vizualization
-writeGmsh(fileName, nodeInfo, u, t)
-writeGmsh(fileName, nodeInfo, c, t)
+writeGmsh(meshParams.fileName, nodeInfo, u, t)
+writeGmsh(meshParams.fileName, nodeInfo, c, t)
 
 

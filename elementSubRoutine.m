@@ -77,7 +77,7 @@ for i=1:size(volElemIdx,1)
         M = psi.sf(ig,:)'*psi.sf(ig,:);
         
         % Get material point quantities
-        [igMatParams] = materialSubRoutineVol(psi.sf(ig,:)*u(Te),psi.sf(ig,:)*u_n(Te),psi.sf(ig,:)*c(Te),psi.sf(ig,:)*c_n(Te));
+        [igMatParams] = materialSubRoutineVol(psi.sf(ig,:)*u(Te),psi.sf(ig,:)*u_n(Te),psi.sf(ig,:)*c(Te),psi.sf(ig,:)*c_n(Te), params);
         k = igMatParams.k;
         Cp = igMatParams.Cp;
         rho = igMatParams.rho;
@@ -179,7 +179,7 @@ for i=1:size(bcInfo,2)
                 
                 % Get ambient temperature and convection coeff
                 u_a = bcInfo{i}{3};
-                [igMatParams] = materialSubRoutineConvBC(psi.sf(ig,:)*u(Te), u_a);
+                [igMatParams] = materialSubRoutineConvBC(psi.sf(ig,:)*u(Te), u_a, params);
                 h = igMatParams.h;
                 dh_u = igMatParams.dh_u;
                 
@@ -221,7 +221,7 @@ for i=1:size(bcInfo,2)
                 J = jacobCalc(elemType(iElem), ig, Xe, psi);
                 
                 % Get ambient temperature and emissivity coeff
-                [igMatParams] = materialSubRoutineRadBC(psi.sf(ig,:)*u(Te));
+                [igMatParams] = materialSubRoutineRadBC(psi.sf(ig,:)*u(Te), params);
                 eps = igMatParams.eps;
                 deps_u = igMatParams.deps_u;
                 u_a = bcInfo{i}{3};
