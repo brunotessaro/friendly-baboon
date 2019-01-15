@@ -28,6 +28,11 @@ nStep = fix((timeParams.tf-timeParams.t0)/timeParams.dt + 1);
 % Get time vector
 t = linspace(timeParams.t0,timeParams.tf,nStep);
 
+%% Calculation of time dependet variables
+
+% Fire temperature
+u_inf = 20 + 345*log(8*t/60+1);
+
 %% Matrix initialization and BC/IC imposition
 
 % Solution initialization
@@ -55,16 +60,16 @@ for n=1:nStep-1
     % Obs: Since rates are calculated in n and the n-1 is required for the calculation of Cp in the 
     % material point one has to countermeasure when n == 1
     if n == 1
-        [rates] = getFieldRates(nodeInfo, elemInfo, bcInfo, u(:,n), u(:,n), c(:,n) ,c(:,n), params);
+        [rates] = getFieldRates(nodeInfo, elemInfo, bcInfo, u(:,n), u(:,n), c(:,n) ,c(:,n), u_inf(n), params);
     else
-        [rates] = getFieldRates(nodeInfo, elemInfo, bcInfo, u(:,n), u(:,n-1), c(:,n), c(:,n-1), params);
+        [rates] = getFieldRates(nodeInfo, elemInfo, bcInfo, u(:,n), u(:,n-1), c(:,n), c(:,n-1), u_inf(n), params);
     end
     % Initialize next newton step
     u(:,n+1) = u(:,n);
     c(:,n+1) = c(:,n);
     
     % Calculate residual and tangent matrix
-    [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u(:,n+1), u(:,n), c(:,n+1), c(:,n), rates, params);
+    [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u(:,n+1), u(:,n), c(:,n+1), c(:,n), rates, u_inf(n), params);
     
     % Calculate aux parameters
     iter = 0;
@@ -84,7 +89,7 @@ for n=1:nStep-1
         c(:,n+1) =  c(:,n+1) + dphi(nNds+1:2*nNds);
         
         % Calculate residual and tangent matrix
-        [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u(:,n+1), u(:,n), c(:,n+1), c(:,n), rates, params);
+        [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u(:,n+1), u(:,n), c(:,n+1), c(:,n), rates, u_inf(n), params);
         
         % Display iteration info
         disp(['Time = ' num2str(timeParams.dt*n)  '  Iter = ' num2str(iter) '    Res = ' num2str(norm(r(nodeInfo.free))) '    ResAdm = ' num2str(norm(r(nodeInfo.free))/norm(ri))]);     
