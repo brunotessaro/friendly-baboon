@@ -18,7 +18,7 @@ eps_2 = params.eps_2;
 %% Calculate integration point quantities
 
 % Emossivety coeff and concentration derivative
-eps = eps_1*u+eps_2;
+eps = eps_2+eps_1.*u;
 deps_u = eps_1;
 
 end

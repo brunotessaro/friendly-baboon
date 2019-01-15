@@ -21,8 +21,12 @@ nu = params.nu;
 %% Calculate integration point quantities
 
 % Convective coeff and concentration derivative
-h = 0.14*k_g*(Pr*(g*beta)/nu*(u - u_a))^(1/3);
-dh_u = (0.46667*g*beta*Pr*k_g)/((nu*(g*beta*Pr*(u-u_a))/nu)^(2/3));
+h = 0.14E0.*k_g.*(beta.*g.*nu.^(-1).*Pr.*(u+(-1).*u_a)).^(1/3);
+if (u_a == u)
+    dh_u = 0;
+else
+    dh_u = 0.466667E-1.*beta.*g.*k_g.*nu.^(-1).*Pr.*(beta.*g.*nu.^(-1).*Pr.*(u+(-1).*u_a)).^(-2/3);
+end
 
 end
 
