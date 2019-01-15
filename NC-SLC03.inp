@@ -22,7 +22,7 @@ geoAndMesh/NC-SLC03.msh
 #
 # Time discretization parameters: t0, tf, dt, alpha.
 #
-0 3600 60 1
+0 3600 15 1
 #
 # Initial conditions: u0, c0.
 #

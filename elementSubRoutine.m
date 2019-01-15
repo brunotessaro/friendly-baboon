@@ -93,7 +93,7 @@ for i=1:size(volElemIdx,1)
                                 + alpha*dt*(B'*k*B*u(Te) - M*Q(Te)))*det(J);
         
         re_c = re_c + gWts(ig)*(M*(c(Te) - c_n(Te) - dt*(1-alpha)*cdot_n(Te)) ...
-                                - alpha*dt*psi.sf(ig,:)'*A*(1-psi.sf(ig,:)*c(Te))^eta*omega)*det(J);
+                                - alpha*dt*psi.sf(ig,:)'*A*(1 - psi.sf(ig,:)*c(Te))^eta*omega)*det(J);
         
         % Calculate tangent matrices
         Ke_uu = Ke_uu + gWts(ig)*(M*rho*Cp + alpha*dt*B'*k*B + M*dCp_u*rho*(psi.sf(ig,:)*(u(Te) - u_n(Te) - dt*(1-alpha)*udot_n(Te))))*det(J);

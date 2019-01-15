@@ -8,7 +8,7 @@ clear, clc, clear
 %% Data reading and assignments
 
 % Read data from input file
-[matParams, meshParams, timeParams] = readData('test_1.inp');
+[matParams, meshParams, timeParams] = readData('NC-SLC03.inp');
 
 % Get mesh information and number of nodes
 [nodeInfo, elemInfo, bcInfo] = getMeshInfo(meshParams.fileName, meshParams.tags);
@@ -74,6 +74,9 @@ for n=1:nStep-1
     % Calculate aux parameters
     iter = 0;
     ri = norm(r(nodeInfo.free));
+    
+    % Display first iteration info
+    disp(['Time = ' num2str(timeParams.dt*n)  '  Iter = ' num2str(iter) '    Res = ' num2str(norm(r(nodeInfo.free))) '    ResAdm = ' num2str(norm(r(nodeInfo.free))/ri)]);
     
     % Start newton loop
     while(norm(r(nodeInfo.free))/ri > 1e-6)
