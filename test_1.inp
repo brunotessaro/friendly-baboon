@@ -1,26 +1,28 @@
 #
 # Name of problem.
 #
-Bai's problem -- Test 1
+Non-cooled specimen SLC03
 #
 # Mesh file name and path.
 # 
-geoAndMesh/testCaseBathe.msh
+geoAndMesh/NC-SLC03.msh
 #
 # Volume info: number of volume tag
 #
 100
 #
-# Boundary condition info: number of boundary physical tags \n
+# Boundary condition info: number of boundary physical tags. 
 #                          physical tag, type of BC, value_1, value_2.
 #
-2
-10 2 0 0.04
-11 3 0 1
+4
+10 2 NaN 25
+11 3 NaN NaN
+12 2 20 NaN
+13 3 20 NaN
 #
 # Time discretization parameters: t0, tf, dt, alpha.
 #
-0 1 0.1 1
+0 3600 60 1
 #
 # Initial conditions: u0, c0.
 #
@@ -53,5 +55,7 @@ geoAndMesh/testCaseBathe.msh
 #                 {2} = 1 - imposed flux     ->  where -> {3} = imposed flux value 
 #                 {2} = 2 - convective flux  ->  where -> {3:4} = ambient temp and convctive coeff
 #                 {2} = 3 - radiative flux   ->  where -> {3:4} = ambient temp and emissivity
-#
+#   
+#   *** If the imposed values are defined as not a number (NaN) the values are temperature/time/space                 
+#   dependent, so they have to be hard coded.
 #--------------------------------------------------------------------------------------------------------

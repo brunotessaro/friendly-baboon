@@ -66,8 +66,8 @@ matParams.rho_b = aux(1);
 matParams.rho_a = aux(2);
 matParams.Cp_b = aux(3);
 matParams.Cp_a = aux(4);
-matParams.k_b = aux(5)*eye(2);
-matParams.k_a = aux(6)*eye(2);
+matParams.k_b = aux(5);
+matParams.k_a = aux(6);
 
 % read boundary physical parameters
 aux = sscanf(read_line(fid), '%g %g %g %g %g %g %g');
@@ -79,6 +79,7 @@ matParams.nu = aux(5);
 matParams.eps_1 = aux(6);
 matParams.eps_2 = aux(7);
 
+fclose(fid);
 disp('End read data');
 toc;
 % -------------------------------------------------------------------------------------------------------

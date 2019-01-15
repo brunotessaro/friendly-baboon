@@ -1,4 +1,4 @@
-function [rates] = getFieldRates(nodeInfo, elemInfo, bcInfo, u, u_n, c, c_n, params)
+function [rates] = getFieldRates(nodeInfo, elemInfo, bcInfo, u, u_n, c, c_n, u_inf, params)
 %-----------------------------------------------------------------------------------
 % Description: This function calculate the temperature and concentration rates in a given time step. 
 %               
@@ -150,10 +150,18 @@ for i=1:size(bcInfo,2)
                 % Get jacobian matrix 
                 J = jacobCalc(elemType(iElem), ig, Xe, psi);
                 
-                % Get ambient temperature and convection coeff
-                u_a = bcInfo{i}{3};
-                [igMatParams] = materialSubRoutineConvBC(psi.sf(ig,:)*u(Te), u_a, params);
-                h = igMatParams.h;
+                % Get ambient temperature and convection coeff, this is problem dependent and the if's
+                % have to be hard coded for different kinds of boundary conditions.
+                if bcInfo{i}{5} == 10
+                    u_a = u_inf;
+                    h = bcInfo{i}{4};
+                elseif bcInfo{i}{5} == 12
+                    u_a = bcInfo{i}{3};
+                    [h, ~] = materialSubRoutineConvBC(psi.sf(ig,:)*u(Te), u_a, params);
+                else
+                    u_a = bcInfo{i}{3};
+                    h = bcInfo{i}{4};
+                end
                 
                 % Calculate temperature eq. elemental matrices for convective boundary
                 Fu_e = Fu_e + gWts(ig)*(psi.sf(ig,:)'*h*(u_a - psi.sf(ig,:)*u(Te)))*det(J);
@@ -183,10 +191,18 @@ for i=1:size(bcInfo,2)
                 % Get jacobian matrix                 
                 J = jacobCalc(elemType(iElem), ig, Xe, psi);
                 
-                % Get ambient temperature and emissivity coeff
-                [igMatParams] = materialSubRoutineRadBC(psi.sf(ig,:)*u(Te), params);
-                eps = igMatParams.eps;
-                u_a = bcInfo{i}{3};           
+                % Get ambient temperature and emissivity coeff, this is problem dependent and the if's
+                % have to be hard coded for different kinds of boundary conditions.
+                if bcInfo{i}{5} == 11
+                    [eps, ~] = materialSubRoutineRadBC(psi.sf(ig,:)*u(Te), params);
+                    u_a = u_inf;
+                elseif bcInfo{i}{5} == 13
+                    [eps, ~] = materialSubRoutineRadBC(psi.sf(ig,:)*u(Te), params);
+                    u_a = bcInfo{i}{3};
+                else
+                    u_a = bcInfo{i}{3};
+                    eps = bcInfo{i}{4};
+                end         
                 
                 % Calculate temperature eq. elemental matrices for radiative boundary
                 Fu_e = Fu_e + gWts(ig)*(psi.sf(ig,:)'*sig*eps*(u_a^4 - (psi.sf(ig,:)*u(Te))^4))*det(J);

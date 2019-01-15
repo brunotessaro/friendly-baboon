@@ -33,7 +33,7 @@ E = params.E;
 %% Calculate integration point quantities
 
 % Conduction coeff and concentration derivative
-k = (k_a*k_b)/(k_a*(1-c)+k_b*c)*eye(2);
+k = (k_a*k_b)/(k_a*(1-c)+k_b*c);
 dk_c = (k_a*k_b*(k_b - k_a))/((1-c)*(k_a + c*k_b))^2;
 
 % Specific heat and concentration derivative

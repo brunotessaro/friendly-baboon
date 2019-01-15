@@ -1,4 +1,4 @@
-function [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u, u_n, c, c_n, rates, params)
+function [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u, u_n, c, c_n, rates, u_inf, params)
 %-----------------------------------------------------------------------------------
 % Description: This function creates the residual and tangent matrix of the problem. 
 %               
@@ -87,8 +87,7 @@ for i=1:size(volElemIdx,1)
         dCp_u = igMatParams.dCp_u;
         drho_c = igMatParams.drho_c;
         domega_u = igMatParams.domega_u;
-        
-        
+       
         % Calculate residual vectors for temperature and concentration
         re_u = re_u + gWts(ig)*(M*rho*Cp*(u(Te) - u_n(Te) - dt*(1-alpha)*udot_n(Te)) ...
                                 + alpha*dt*(B'*k*B*u(Te) - M*Q(Te)))*det(J);
@@ -177,12 +176,20 @@ for i=1:size(bcInfo,2)
                 % Get jacobian matrix
                 J = jacobCalc(elemType(iElem), ig, Xe, psi);
                 
-                % Get ambient temperature and convection coeff
-                u_a = bcInfo{i}{3};
-                [igMatParams] = materialSubRoutineConvBC(psi.sf(ig,:)*u(Te), u_a, params);
-                h = igMatParams.h;
-                dh_u = igMatParams.dh_u;
-                
+                % Get ambient temperature and convection coeff, this is problem dependent and the if's
+                % have to be hard coded for different kinds of boundary conditions.
+                if bcInfo{i}{5} == 10
+                    u_a = u_inf;
+                    h = bcInfo{i}{4};
+                    dh_u = 0;
+                elseif bcInfo{i}{5} == 12
+                    u_a = bcInfo{i}{3};
+                    [h, dh_u] = materialSubRoutineConvBC(psi.sf(ig,:)*u(Te), u_a, params);
+                else
+                    u_a = bcInfo{i}{3};
+                    h = bcInfo{i}{4};
+                    dh_u = 0;
+                end
                 
                 % Calculate temperature eq. residual for convective bc
                 re_u = re_u + gWts(ig)*(-alpha*dt*psi.sf(ig,:)'*h*(u_a - psi.sf(ig,:)*u(Te)))*det(J);
@@ -220,11 +227,19 @@ for i=1:size(bcInfo,2)
                 % Get jacobian matrix  
                 J = jacobCalc(elemType(iElem), ig, Xe, psi);
                 
-                % Get ambient temperature and emissivity coeff
-                [igMatParams] = materialSubRoutineRadBC(psi.sf(ig,:)*u(Te), params);
-                eps = igMatParams.eps;
-                deps_u = igMatParams.deps_u;
-                u_a = bcInfo{i}{3};
+                % Get ambient temperature and emissivity coeff, this is problem dependent and the if's
+                % have to be hard coded for different kinds of boundary conditions.
+                if bcInfo{i}{5} == 11
+                    [eps, deps_u] = materialSubRoutineRadBC(psi.sf(ig,:)*u(Te), params);
+                    u_a = u_inf;
+                elseif bcInfo{i}{5} == 13
+                    [eps, deps_u] = materialSubRoutineRadBC(psi.sf(ig,:)*u(Te), params);
+                    u_a = bcInfo{i}{3};
+                else
+                    u_a = bcInfo{i}{3};
+                    eps = bcInfo{i}{4};
+                    deps_u = 0;
+                end
                 
                 % Calculate temperature eq. residual for radiative bc and tangets
                 re_u = re_u + gWts(ig)*(-alpha*dt*(psi.sf(ig,:)'*sig*eps*(u_a^4 - (psi.sf(ig,:)*u(Te))^4)))*det(J);

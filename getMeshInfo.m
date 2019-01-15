@@ -51,7 +51,7 @@ end
 
 % Get boundary ELEMENTAL boundary information
 for i=1:size(tags.boundary,2)
-    tags.boundary{i}{5} = tags.boundary{i}{1};
+    tags.boundary{i}{5} = tags.boundary{i}{1};  % Keeps the physical tag in the 5th position
     tags.boundary{i}{1} = bcElemIdx{i};
 end
 bcInfo = tags.boundary;
