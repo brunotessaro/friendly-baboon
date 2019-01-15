@@ -3,14 +3,11 @@
 %              relevant to the problem resolution.
 %               
 % Input Variables : fileName = mesh file name to be inputed.
-%                   volTags = number associated with the volume physical tag.
-%                   kineBCTags = number associated with the kinetic BC physical tag.
-%                   statBCTags = number associated with the static BC physical tag.
+%                   tags = struct containing physical tags from boundary and volume.
 %
-% Output Variables : X = position matrix.
-%                    T = connectivety matrix.
-%                    elmType = vector containing the type of each element.
-%                    dofs = struct containing free and restrained node indexes
+% Output Variables : nodeInfo = struct containing nodes information.
+%                    nodeInfo = struct containing elements information.
+%                    bcInfo = struct containing boundary condition information.
 %-----------------------------------------------------------------------------------
 function [nodeInfo, elemInfo, bcInfo] = getMeshInfo(fileName, tags)
 % Load mesh                 
@@ -54,6 +51,7 @@ end
 
 % Get boundary ELEMENTAL boundary information
 for i=1:size(tags.boundary,2)
+    tags.boundary{i}{5} = tags.boundary{i}{1};
     tags.boundary{i}{1} = bcElemIdx{i};
 end
 bcInfo = tags.boundary;
