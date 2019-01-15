@@ -1,4 +1,4 @@
-function [igMatParams] = materialSubRoutineRadBC(u, params)
+function [eps, deps_u] = materialSubRoutineRadBC(u, params)
 %-----------------------------------------------------------------------------------
 % Description: This function calculates the radiative boundary material properties and derivatives.
 %               
@@ -6,8 +6,8 @@ function [igMatParams] = materialSubRoutineRadBC(u, params)
 %                   params = struct containing material parameters.
 %
 %
-% Output Variables : matParams = struct containing all the quantities calculated in the gauss pt.
-%                    
+% Output Variables : eps = radiative coefficient.
+%                    deps_u = derivative of radiative coefficient wrt to temperature.   
 %-----------------------------------------------------------------------------------
 %% Get auxiliary paramenters 
 
@@ -20,10 +20,6 @@ eps_2 = params.eps_2;
 % Emossivety coeff and concentration derivative
 eps = eps_1*u+eps_2;
 deps_u = eps_1;
-
-% Assign calculated quantities to struct
-igMatParams.eps = eps;
-igMatParams.deps_u = deps_u;
 
 end
 
