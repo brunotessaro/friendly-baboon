@@ -168,7 +168,6 @@ for i=1:size(bcInfo,2)
             % Initialize elemental matrices         
             re_u = zeros(size(Te,2),1);
             Ke_uu = zeros(size(Te,2));
-            Ke_uc = zeros(size(Te,2));
             
             % Loop trough integration points
             for ig=1:size(gWts,2)
@@ -202,7 +201,6 @@ for i=1:size(bcInfo,2)
             % Assembly of global matrices
             r_u(Te) = r_u(Te) + re_u;
             K_uu(Te,Te) = K_uu(Te, Te) + Ke_uu;
-            K_uc(Te,Te) = K_uc(Te, Te) + Ke_uc;
         end
         
     % Check the kind of boundary condition (1: flux, 2: convective, 3: radiative)
@@ -220,7 +218,6 @@ for i=1:size(bcInfo,2)
             % Initialize elemental matrices         
             re_u = zeros(size(Te,2),1);
             Ke_uu = zeros(size(Te,2));
-            Ke_uc = zeros(size(Te,2));
             
             for ig=1:size(gWts,2)
                 
@@ -253,7 +250,6 @@ for i=1:size(bcInfo,2)
             % Assembly of global matrices
             r_u(Te) = r_u(Te) + re_u;
             K_uu(Te,Te) = K_uu(Te, Te) + Ke_uu;
-            K_uc(Te,Te) = K_uc(Te, Te) + Ke_uc;
         end
     end
 end
@@ -261,7 +257,7 @@ end
 %% Grouping global matrices for newton iteration
 
 r = [r_u ; r_c];
-K = [K_uu , K_uc;
+K = [K_uu , K_uc
      K_cu , K_cc];
 
 end
