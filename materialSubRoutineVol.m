@@ -15,21 +15,21 @@ function [igMatParams] = materialSubRoutineVol(u, u_n, c, c_n, params)
 
 k_a = params.k_a;
 k_b = params.k_b;
-
 rho_a = params.rho_a;
 rho_b = params.rho_b;
-
 Cp_a = params.Cp_a;
 Cp_b = params.Cp_b;
 Cp_d = params.Cp_d;
-
 R = params.R;
 E = params.E;
 
 %% Calculate integration point quantities
 
+% The quantities here presented are calculated symbolic on Mathematica and exported aumtomaticly to
+% avoid typing or derivative errors.
+
 % Conduction coeff and concentration derivative
-k = k_a.*k_b.*((1+(-1).*c).*k_a+c.*k_b).^(-1);
+k = (c.*k_a.^(-1)+(1+(-1).*c).*k_b.^(-1)).^(-1);
 dk_c = k_a.*(k_a+(-1).*k_b).*k_b.*(k_a+(-1).*c.*k_a+c.*k_b).^(-2);
 
 % Density and concentration derivative
@@ -38,7 +38,7 @@ drho_c = rho_a+(-1).*rho_b;
 
 % Omega and temperature derivative
 omega = exp((-1).*E.*R.^(-1).*u.^(-1));
-domega_u = (E*exp(-E/(R*u)))/(R*u^2);   % Mathematica was giving weird results so this was calculated by hand
+domega_u = (E*exp(-E/(R*u)))/(R*u^2);    % Mathematica was giving weird results so this was calculated by hand
 
 % Specific heat and concentration derivative
 % Obs: since the author uses a numerical trick to calculate the derivative dc/du one has to place

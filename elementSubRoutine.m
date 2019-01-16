@@ -96,11 +96,14 @@ for i=1:size(volElemIdx,1)
                                 - alpha*dt*psi.sf(ig,:)'*A*(1 - psi.sf(ig,:)*c(Te))^eta*omega)*det(J);
         
         % Calculate tangent matrices
-        Ke_uu = Ke_uu + gWts(ig)*(M*rho*Cp + alpha*dt*B'*k*B + M*dCp_u*rho*(psi.sf(ig,:)*(u(Te) - u_n(Te) - dt*(1-alpha)*udot_n(Te))))*det(J);
+        Ke_uu = Ke_uu + gWts(ig)*(M*rho*Cp + alpha*dt*B'*k*B ...
+                                  + M*dCp_u*rho*(psi.sf(ig,:)*(u(Te) - u_n(Te) - dt*(1-alpha)*udot_n(Te))))*det(J);
+        
         Ke_uc = Ke_uu + gWts(ig)*(M*(dCp_c*rho + Cp*drho_c)*(psi.sf(ig,:)*(u(Te) - u_n(Te) - dt*(1-alpha)*udot_n(Te))) ...
                                   + alpha*dt*(B'*dk_c*B*u(Te))*psi.sf(ig,:))*det(J);
         
         Ke_cu = Ke_cu + gWts(ig)*(-alpha*dt*M*A*(1-psi.sf(ig,:)*c(Te))^eta*domega_u)*det(J);
+        
         Ke_cc = Ke_cc + gWts(ig)*(M + alpha*dt*M*A*eta*(1-psi.sf(ig,:)*c(Te))^(eta-1)*omega)*det(J); 
                               
         
@@ -142,10 +145,10 @@ for i=1:size(bcInfo,2)
                 J = jacobCalc(elemType(iElem), ig, Xe, psi);
                 
                 % Get normal flux
-                qn = bcInfo{i}{3};
+                qb = bcInfo{i}{3};
                 
                 % Calculate temperature eq. residual for flux boundary
-                re_u = re_u + gWts(ig)*(-alpha*dt*psi.sf(ig,:)'*qn)*det(J);
+                re_u = re_u + gWts(ig)*(-alpha*dt*psi.sf(ig,:)'*qb)*det(J);
                 
             end
             
@@ -239,7 +242,7 @@ for i=1:size(bcInfo,2)
                 end
                 
                 % Calculate temperature eq. residual for radiative bc and tangets
-                re_u = re_u + gWts(ig)*(-alpha*dt*(psi.sf(ig,:)'*sig*eps*(u_a^4 - (psi.sf(ig,:)*u(Te))^4)))*det(J);
+                re_u = re_u + gWts(ig)*(-alpha*dt*psi.sf(ig,:)'*sig*eps*(u_a^4 - (psi.sf(ig,:)*u(Te))^4))*det(J);
                 
                 % Calculate tangents
                 Ke_uu = Ke_uu + gWts(ig)*(-alpha*dt*psi.sf(ig,:)'*sig*(deps_u*(u_a^4 - (psi.sf(ig,:)*u(Te))^4)  ...

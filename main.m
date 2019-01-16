@@ -109,7 +109,7 @@ writeGmsh(meshParams.fileName, nodeInfo, c, t)
 % plot(t/60,c(1,:))
 % plot(t/60,c(2,:))
 % 
-% figure(2)
-% hold on
-% plot(t/60,u(2,:))
+ figure(2)
+ hold on
+ plot(t/60,u(2,:))
 

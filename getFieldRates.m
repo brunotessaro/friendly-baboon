@@ -118,10 +118,10 @@ for i=1:size(bcInfo,2)
                 J = jacobCalc(elemType(iElem), ig, Xe, psi);
                 
                 % Get normal flux
-                q_in = bcInfo{i}{3};
+                qb = bcInfo{i}{3};
                 
                 % Calculate temperature eq. elemental matrices for flux boundary
-                Fu_e = Fu_e + gWts(ig)*(psi.sf(ig,:)'*q_in)*det(J);
+                Fu_e = Fu_e + gWts(ig)*(psi.sf(ig,:)'*qb)*det(J);
             
             end
             
