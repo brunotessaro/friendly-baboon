@@ -87,7 +87,7 @@ for i=1:size(volElemIdx,1)
         dCp_u = igMatParams.dCp_u;
         drho_c = igMatParams.drho_c;
         domega_u = igMatParams.domega_u;
-       
+
         % Calculate residual vectors for temperature and concentration
         re_u = re_u + gWts(ig)*(M*rho*Cp*(u(Te) - u_n(Te) - dt*(1-alpha)*udot_n(Te)) ...
                                 + alpha*dt*(B'*k*B*u(Te) - M*Q(Te)))*det(J);

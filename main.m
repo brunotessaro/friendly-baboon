@@ -31,7 +31,7 @@ t = linspace(timeParams.t0,timeParams.tf,nStep);
 %% Calculation of time dependet variables
 
 % Fire temperature
-u_inf = 20 + 345*log(8*t/60+1);
+u_inf = 20 + 345*log10(8*t/60+1);
 
 %% Matrix initialization and BC/IC imposition
 
@@ -104,4 +104,12 @@ end
 writeGmsh(meshParams.fileName, nodeInfo, u, t)
 writeGmsh(meshParams.fileName, nodeInfo, c, t)
 
+% figure(1)
+% hold on
+% plot(t/60,c(1,:))
+% plot(t/60,c(2,:))
+% 
+% figure(2)
+% hold on
+% plot(t/60,u(2,:))
 
