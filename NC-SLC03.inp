@@ -28,9 +28,9 @@ geoAndMesh/NC-SLC03.msh
 #
 20 0
 #
-# General physical parameters: E, A, eta, R, Cp_d, sig, Q. 
+# General physical parameters: tau, zeta, a, Cp_d, sig, Q. 
 #
-77878 5.2832E+3 1.00 8.314 234E+3 5.669E-8 0
+1 0.01 0.01 234E+3 5.669E-8 0
 #
 # Before and after decomposition physical parameters: rho_b, rho_a, Cp_b, Cp_a, k_b, k_a.
 #

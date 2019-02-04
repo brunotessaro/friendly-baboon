@@ -25,8 +25,9 @@ nNds = size(X,1);
 % Get physical and numerical parameters
 Q = params.Q;
 sig = params.sig;
-A = params.A;
-eta = params.eta;
+tau = params.tau;
+zeta = params.zeta;
+a = params.a;
 dt = params.dt;
 alpha = params.alpha;
 
@@ -81,30 +82,47 @@ for i=1:size(volElemIdx,1)
         k = igMatParams.k;
         Cp = igMatParams.Cp;
         rho = igMatParams.rho;
-        omega = igMatParams.omega;
         dk_c = igMatParams.dk_c;
         dCp_c = igMatParams.dCp_c;
         dCp_u = igMatParams.dCp_u;
         drho_c = igMatParams.drho_c;
-        domega_u = igMatParams.domega_u;
+        
+        dg_c = igMatParams.dg_c;
+        dg_cc = igMatParams.dg_cc;
+        dz_c = igMatParams.dz_c;
+        dz_cc = igMatParams.dz_cc;
+        f = igMatParams.f;
+        df_u = igMatParams.df_u;
+
+        
+        % Calculate predictors
+        u_hat = u_n(Te) + dt*(1-alpha)*udot_n(Te);
+        c_hat = c_n(Te) + dt*(1-alpha)*cdot_n(Te);
+
 
         % Calculate residual vectors for temperature and concentration
-        re_u = re_u + gWts(ig)*(M*rho*Cp*(u(Te) - u_n(Te) - dt*(1-alpha)*udot_n(Te)) ...
-                                + alpha*dt*(B'*k*B*u(Te) - M*Q(Te)))*det(J);
+        re_u = re_u + gWts(ig)*(M*rho*Cp*(u(Te) - u_hat) ...
+                                + alpha*dt*(B'*k*B*u(Te) - M*Q(Te)) ...
+                                - M*dz_c*(c(Te) - c_hat))*det(J);
         
-        re_c = re_c + gWts(ig)*(M*(c(Te) - c_n(Te) - dt*(1-alpha)*cdot_n(Te)) ...
-                                - alpha*dt*psi.sf(ig,:)'*A*(1 - psi.sf(ig,:)*c(Te))^eta*omega)*det(J);
+        re_c = re_c + gWts(ig)*(M*tau*(c(Te) - c_hat) ...
+                                + alpha*dt*(B'*zeta^2*B*c(Te) ...
+                                + psi.sf(ig,:)'*a^2/2*dg_c ...
+                                + psi.sf(ig,:)'*f*dz_c))*det(J);
         
         % Calculate tangent matrices
         Ke_uu = Ke_uu + gWts(ig)*(M*rho*Cp + alpha*dt*B'*k*B ...
-                                  + M*dCp_u*rho*(psi.sf(ig,:)*(u(Te) - u_n(Te) - dt*(1-alpha)*udot_n(Te))))*det(J);
+                                  + M*dCp_u*rho*(psi.sf(ig,:)*(u(Te) - u_hat)))*det(J);
         
-        Ke_uc = Ke_uu + gWts(ig)*(M*(dCp_c*rho + Cp*drho_c)*(psi.sf(ig,:)*(u(Te) - u_n(Te) - dt*(1-alpha)*udot_n(Te))) ...
-                                  + alpha*dt*(B'*dk_c*B*u(Te))*psi.sf(ig,:))*det(J);
+        Ke_uc = Ke_uu + gWts(ig)*(M*(dCp_c*rho + Cp*drho_c)*(psi.sf(ig,:)*(u(Te) - u_hat)) ...
+                                  + alpha*dt*(B'*dk_c*B*u(Te))*psi.sf(ig,:) ...
+                                  - M*dz_cc*(psi.sf(ig,:)*(c(Te) - c_hat)) ...
+                                  - M*dz_c)*det(J);
         
-        Ke_cu = Ke_cu + gWts(ig)*(-alpha*dt*M*A*(1-psi.sf(ig,:)*c(Te))^eta*domega_u)*det(J);
+        Ke_cu = Ke_cu + gWts(ig)*(alpha*dt*M*df_u*dz_c)*det(J);
         
-        Ke_cc = Ke_cc + gWts(ig)*(M + alpha*dt*M*A*eta*(1-psi.sf(ig,:)*c(Te))^(eta-1)*omega)*det(J); 
+        Ke_cc = Ke_cc + gWts(ig)*(M*tau + alpha*dt*(B'*zeta^2*B ...
+                                  + M*(a^2/2*dg_cc + f*dz_cc)))*det(J); 
                               
         
     end

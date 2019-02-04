@@ -26,8 +26,9 @@ nNds = size(X,1);
 % Get physical parameters
 Q = params.Q;
 sig = params.sig;
-A = params.A;
-eta = params.eta;
+tau = params.tau;
+zeta = params.zeta;
+a = params.a;
 
 % Initialize global matrices
 Fu = zeros(nNds,1);
@@ -72,15 +73,18 @@ for i=1:size(volElemIdx,1)
             k = igMatParams.k;
             Cp = igMatParams.Cp;
             rho = igMatParams.rho;
-            omega = igMatParams.omega;      
+            f = igMatParams.f;
+            dg_c = igMatParams.dg_c;
+            dz_c = igMatParams.dz_c;
             
             % Calculate temperature eq. elemental matrices
             Ku_e = Ku_e + gWts(ig)*(M*rho*Cp)*det(J);
             Fu_e = Fu_e + gWts(ig)*(-B'*k*B*u(Te) + M*Q(Te))*det(J);            
 
             % Calculate concentration eq. elemental matrices
-            Kc_e = Kc_e + gWts(ig)*M*det(J);
-            Fc_e = Fc_e + gWts(ig)*(psi.sf(ig,:)'*A*(1-psi.sf(ig,:)*c(Te))^eta*omega)*det(J); 
+            Kc_e = Kc_e + gWts(ig)*M*tau*det(J);
+            Fc_e = Fc_e + gWts(ig)*(-B'*zeta^2*B*c(Te) - psi.sf(ig,:)'*a^2/2*dg_c - psi.sf(ig,:)'*f*dz_c)*det(J);
+            
     
     end 
     

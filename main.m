@@ -44,6 +44,7 @@ dphi = zeros(2*nNds,1);
 u(:,1) = timeParams.u0*ones(nNds,1);
 c(:,1) = timeParams.c0*ones(nNds,1);
 
+
 % Imposing temperature BC 
 for i=1:size(bcInfo,2)
     for j=1:size(bcInfo{i}{1},1)
@@ -101,16 +102,15 @@ for n=1:nStep-1
 end
 
 %% Writting gmsh files for vizualization
-writeGmsh(meshParams.fileName, nodeInfo, u, t)
+
+%writeGmsh(meshParams.fileName, nodeInfo, u, t)
 writeGmsh(meshParams.fileName, nodeInfo, c, t)
 
-% figure(1)
-% hold on
-% plot(t/60,c(1,:))
-% plot(t/60,c(2,:))
-% 
- figure(2)
- hold on
- plot(t/60,u(2,:))
+%% Plot time dependent parameters
 
+figure(1)
+plot(t/60,c(floor(nNds/2),:))
+
+figure(2)
+plot(t/60,u(floor(nNds/2),:))
 
