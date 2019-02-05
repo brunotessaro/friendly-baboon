@@ -106,11 +106,31 @@ end
 %writeGmsh(meshParams.fileName, nodeInfo, u, t)
 writeGmsh(meshParams.fileName, nodeInfo, c, t)
 
+
 %% Plot time dependent parameters
 
-figure(1)
-plot(t/60,c(floor(nNds/2),:))
+% Arranging matrices for plotting (for 1D case)
+c_sort = c;
+c_sort(nNds+1,:) = c_sort(2,:);
+c_sort(2,:) = [];
 
-figure(2)
-plot(t/60,u(floor(nNds/2),:))
+u_sort = u;
+u_sort(nNds+1,:) = u_sort(2,:);
+u_sort(2,:) = [];
+
+X_sort = nodeInfo.X;
+X_sort(nNds+1,1) = X_sort(2,1);
+X_sort(2,:) = [];
+
+% Plot in space for each time step
+figure(1)
+for n=1:10:nStep
+    plot(X_sort(:,1),c_sort(:,n))
+    %ylim([-0.1 1.1])
+    %xlim([-0.05 0.05])
+    legend('Numerical Solution')
+    pause(0.5)
+end
+
+
 
