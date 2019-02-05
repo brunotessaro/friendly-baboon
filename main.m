@@ -44,7 +44,6 @@ dphi = zeros(2*nNds,1);
 u(:,1) = timeParams.u0*ones(nNds,1);
 c(:,1) = timeParams.c0*ones(nNds,1);
 
-
 % Imposing temperature BC 
 for i=1:size(bcInfo,2)
     for j=1:size(bcInfo{i}{1},1)
