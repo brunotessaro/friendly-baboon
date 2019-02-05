@@ -50,16 +50,33 @@ else
     dCp_u = ((-1).*c+c_n).*Cp_d.*(u+(-1).*u_n).^(-2);
 end
 
-% Phase-field parameters (to be implemented later)
+% Phase-field parameters
+
+% Symetric part of potential g(c)
 % g = c^2*(1-c)^2;
 dg_c = 2*c*(2*c^2 - 3*c + 1);
 dg_cc = 3*(2*c-1)^2 -1;
-% z = c^3*(10 - 15*c + c^2);
-dz_c = 5*c^2*(c^2 - 12*c + 6);
-dz_cc = 20*c*(c^2 - 9*c + 3);
-cte = -0.0000001;
-f = cte*u;
-df_u = cte;
+
+% Tilted part of potential g(c)
+
+% Type I z(c)
+% z = c^3*(10 - 15*c + 6*c^2);
+% dz_c = 30*c^2*(c-1)^2;
+% dz_cc = 60*c*(2*c^2 - 3*c + 1);
+
+% Type II z(c)
+% z = c^2(3-2c);
+dz_c = -6*c*(c-1);
+dz_cc = 6-12*c;
+
+% f function
+% ------------------------------
+% cte = -0.0000001;
+% f = cte*u;
+% df_u = cte;
+cte = -0.163934426229508;
+f = cte;
+df_u = 0;
 
 % Assign calculated quantities to struct
 igMatParams.k = k;
