@@ -8,7 +8,7 @@ clear, clc, clear
 %% Data reading and assignments
 
 % Read data from input file
-[matParams, meshParams, timeParams] = readData('NC-SLC03.inp');
+[matParams, meshParams, timeParams] = readData('inputs/NC-SLC03.inp');
 
 % Get mesh information and number of nodes
 [nodeInfo, elemInfo, bcInfo] = getMeshInfo(meshParams.fileName, meshParams.tags);
@@ -100,36 +100,18 @@ for n=1:nStep-1
     end
 end
 
-%% Writting gmsh files for vizualization
+%% Writting gmsh files for vizualization and plot if 1D
 
 %writeGmsh(meshParams.fileName, nodeInfo, u, t)
 writeGmsh(meshParams.fileName, nodeInfo, c, t)
+plot1D(c, nodeInfo.X, t)
 
 
-%% Plot time dependent parameters
 
-% Arranging matrices for plotting (for 1D case)
-c_sort = c;
-c_sort(nNds+1,:) = c_sort(2,:);
-c_sort(2,:) = [];
 
-u_sort = u;
-u_sort(nNds+1,:) = u_sort(2,:);
-u_sort(2,:) = [];
 
-X_sort = nodeInfo.X;
-X_sort(nNds+1,1) = X_sort(2,1);
-X_sort(2,:) = [];
 
-% Plot in space for each time step
-figure(1)
-for n=1:10:nStep
-    plot(X_sort(:,1),c_sort(:,n))
-    %ylim([-0.1 1.1])
-    %xlim([-0.05 0.05])
-    legend('Numerical Solution')
-    pause(0.5)
-end
+
 
 
 
