@@ -1,3 +1,4 @@
 *~
 *.msh
-geoAndMesh
+inputs/
+misc/
