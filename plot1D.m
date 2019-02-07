@@ -1,4 +1,4 @@
-function [] = plot1D(u, X, t)
+function [] = plot1D(u, X, t, limy, limx)
 %-----------------------------------------------------------------------------------
 % Description: This function creates the residual and tangent matrix of the problem. 
 %               
@@ -12,7 +12,7 @@ function [] = plot1D(u, X, t)
 
 % Get auxiliary vectors
 nNds = size(X,1);
-nStep = size(t,1);
+nStep = size(t,2);
 
 % Arranging matrices for plotting (in 1D gmsh puts the last node in the second position)
 u(nNds+1,:) = u(2,:);
@@ -24,12 +24,13 @@ X(2,:) = [];
 
 % Plot in space for each time step
 figure(1)
-for n=1:10:nStep
+for n=1:1:nStep
     plot(X,u(:,n))
-    %ylim([-0.1 1.1])
-    %xlim([-0.05 0.05])
+    ylim(limy)
+    xlim(limx)
+    title(['Time: ', num2str(t(n)), 'min'])
     legend('Numerical Solution')
-    pause(0.5)
+    pause(0.2)
 end
 
 end
