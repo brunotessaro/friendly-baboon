@@ -42,7 +42,6 @@ K_uc = zeros(nNds);
 K_cu = zeros(nNds);
 K_cc = zeros(nNds);
 
-
 %% Assembly of volume elements contributions
 
 % Loop trough volume elements
@@ -87,6 +86,7 @@ for i=1:size(volElemIdx,1)
         dCp_u = igMatParams.dCp_u;
         drho_c = igMatParams.drho_c;
         domega_u = igMatParams.domega_u;
+        
 
         % Calculate residual vectors for temperature and concentration
         re_u = re_u + gWts(ig)*(M*rho*Cp*(u(Te) - u_n(Te) - dt*(1-alpha)*udot_n(Te)) ...
@@ -99,7 +99,7 @@ for i=1:size(volElemIdx,1)
         Ke_uu = Ke_uu + gWts(ig)*(M*rho*Cp + alpha*dt*B'*k*B ...
                                   + M*dCp_u*rho*(psi.sf(ig,:)*(u(Te) - u_n(Te) - dt*(1-alpha)*udot_n(Te))))*det(J);
         
-        Ke_uc = Ke_uu + gWts(ig)*(M*(dCp_c*rho + Cp*drho_c)*(psi.sf(ig,:)*(u(Te) - u_n(Te) - dt*(1-alpha)*udot_n(Te))) ...
+        Ke_uc = Ke_uc + gWts(ig)*(M*(dCp_c*rho + Cp*drho_c)*(psi.sf(ig,:)*(u(Te) - u_n(Te) - dt*(1-alpha)*udot_n(Te))) ...
                                   + alpha*dt*(B'*dk_c*B*u(Te))*psi.sf(ig,:))*det(J);
         
         Ke_cu = Ke_cu + gWts(ig)*(-alpha*dt*M*A*(1-psi.sf(ig,:)*c(Te))^eta*domega_u)*det(J);

@@ -8,7 +8,7 @@ clear, clc, clear
 %% Data reading and assignments
 
 % Read data from input file
-[matParams, meshParams, timeParams] = readData('NC-SLC03.inp');
+[matParams, meshParams, timeParams] = readData('inputs/NC-SLC03.inp');
 
 % Get mesh information and number of nodes
 [nodeInfo, elemInfo, bcInfo] = getMeshInfo(meshParams.fileName, meshParams.tags);
@@ -79,7 +79,7 @@ for n=1:nStep-1
     disp(['Time = ' num2str(timeParams.dt*n)  '  Iter = ' num2str(iter) '    Res = ' num2str(norm(r(nodeInfo.free))) '    ResAdm = ' num2str(norm(r(nodeInfo.free))/ri)]);
     
     % Start newton loop
-    while(norm(r(nodeInfo.free))/ri > 1e-6)
+    while(norm(r(nodeInfo.free))/ri > 1e-10)
         
         % Iteration counter
         iter=iter+1;
@@ -90,7 +90,7 @@ for n=1:nStep-1
         % Mount solution vectors
         u(:,n+1) =  u(:,n+1) + dphi(1:nNds);
         c(:,n+1) =  c(:,n+1) + dphi(nNds+1:2*nNds);
-        
+                
         % Calculate residual and tangent matrix
         [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u(:,n+1), u(:,n), c(:,n+1), c(:,n), rates, u_inf(n), params);
         
@@ -104,13 +104,17 @@ end
 writeGmsh(meshParams.fileName, nodeInfo, u, t)
 writeGmsh(meshParams.fileName, nodeInfo, c, t)
 
-% figure(1)
-% hold on
-% plot(t/60,c(1,:))
-% plot(t/60,c(2,:))
+%Plotting in 1D
+figure(1)
+hold on
+plot(t/60,u(end,:))
 % 
- figure(2)
- hold on
- plot(t/60,u(2,:))
+% figure(2)
+% hold on
+% plot(t/60,c(2,:))
+
+% plot1D(u, nodeInfo.X, t, [0 1000], [0 0.016])
+% plot1D(c, nodeInfo.X, t, [0 1.2], [0 0.016])
+
 
 
