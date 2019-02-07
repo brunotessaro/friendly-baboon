@@ -8,7 +8,7 @@ clear, clc, clear
 %% Data reading and assignments
 
 % Read data from input file
-[matParams, meshParams, timeParams] = readData('inputs/NC-SLC03.inp');
+[matParams, meshParams, timeParams] = readData('inputs/testPFM1WayCoupling.inp');
 
 % Get mesh information and number of nodes
 [nodeInfo, elemInfo, bcInfo] = getMeshInfo(meshParams.fileName, meshParams.tags);
@@ -44,6 +44,13 @@ dphi = zeros(2*nNds,1);
 u(:,1) = timeParams.u0*ones(nNds,1);
 c(:,1) = timeParams.c0*ones(nNds,1);
 
+% %--------------------------------------------------
+% % Testing initial condition for c
+% a = params.a;
+% zeta = params.zeta;
+% c(:,1) = 1/2*(1-tanh(a*(nodeInfo.X(:,1))/(2*zeta)));
+% %--------------------------------------------------
+
 % Imposing temperature BC 
 for i=1:size(bcInfo,2)
     for j=1:size(bcInfo{i}{1},1)
@@ -55,14 +62,19 @@ end
 
 %% Start the time loop
 for n=1:nStep-1
-    
-    % Calculate rates at first time step
+       
+    % Calculate rates at first time step (if full implicity set rates to 0)
     % Obs: Since rates are calculated in n and the n-1 is required for the calculation of Cp in the 
     % material point one has to countermeasure when n == 1
-    if n == 1
-        [rates] = getFieldRates(nodeInfo, elemInfo, bcInfo, u(:,n), u(:,n), c(:,n) ,c(:,n), u_inf(n), params);
+    if params.alpha == 1
+        rates.udot = zeros(nNds,1);
+        rates.cdot = zeros(nNds,1);
     else
-        [rates] = getFieldRates(nodeInfo, elemInfo, bcInfo, u(:,n), u(:,n-1), c(:,n), c(:,n-1), u_inf(n), params);
+        if n == 1
+            [rates] = getFieldRates(nodeInfo, elemInfo, bcInfo, u(:,n), u(:,n), c(:,n) ,c(:,n), u_inf(n), params);
+        else
+            [rates] = getFieldRates(nodeInfo, elemInfo, bcInfo, u(:,n), u(:,n-1), c(:,n), c(:,n-1), u_inf(n), params);
+        end
     end
     % Initialize next newton step
     u(:,n+1) = u(:,n);
@@ -70,7 +82,7 @@ for n=1:nStep-1
     
     % Calculate residual and tangent matrix
     [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u(:,n+1), u(:,n), c(:,n+1), c(:,n), rates, u_inf(n), params);
-    
+     
     % Calculate aux parameters
     iter = 0;
     ri = norm(r(nodeInfo.free));
@@ -79,7 +91,7 @@ for n=1:nStep-1
     disp(['Time = ' num2str(timeParams.dt*n)  '  Iter = ' num2str(iter) '    Res = ' num2str(norm(r(nodeInfo.free))) '    ResAdm = ' num2str(norm(r(nodeInfo.free))/ri)]);
     
     % Start newton loop
-    while(norm(r(nodeInfo.free))/ri > 1e-6)
+    while(norm(r(nodeInfo.free))/ri > 1e-12)
         
         % Iteration counter
         iter=iter+1;
@@ -104,7 +116,8 @@ end
 
 %writeGmsh(meshParams.fileName, nodeInfo, u, t)
 writeGmsh(meshParams.fileName, nodeInfo, c, t)
-plot1D(c, nodeInfo.X, t)
+plot1D(u, nodeInfo.X, t, [-300 1500], [-0.01 0.01])
+plot1D(c, nodeInfo.X, t, [0 1], [-0.01 0.01])
 
 
 
