@@ -51,13 +51,14 @@ timeParams.u0 = aux(1);
 timeParams.c0 = aux(2);
 
 % read general physical parameters
-aux = sscanf(read_line(fid), '%g %g %g %g %g %g %g');
+aux = sscanf(read_line(fid), '%g %g %g %g %g %g %g %g');
 matParams.tau = aux(1);
 matParams.zeta = aux(2);
 matParams.a = aux(3);
-matParams.Cp_d = aux(4);
-matParams.sig = aux(5);
-matParams.Q = aux(6);
+matParams.f = aux(4);
+matParams.Cp_d = aux(5);
+matParams.sig = aux(6);
+matParams.Q = aux(7);
 
 % read before and after decomposition physical parameters
 aux = sscanf(read_line(fid), '%g %g %g %g %g %g');
