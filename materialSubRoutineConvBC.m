@@ -22,10 +22,15 @@ nu = params.nu;
 
 % Convective coeff and concentration derivative
 h = 0.14E0.*k_g.*(beta.*g.*nu.^(-1).*Pr.*(u+(-1).*u_a)).^(1/3);
+h = 0.14E0.*k_g.*abs((beta.*g.*nu.^(-1).*Pr.*(u+(-1).*u_a)).^(1/3))*sign((beta.*g.*nu.^(-1).*Pr.*(u+(-1).*u_a)));
+
 if (u_a == u)
     dh_u = 0;
 else
     dh_u = 0.466667E-1.*beta.*g.*k_g.*nu.^(-1).*Pr.*(beta.*g.*nu.^(-1).*Pr.*(u+(-1).*u_a)).^(-2/3);
+    dh_u = 0.466667E-1.*beta.*g.*k_g.*nu.^(-1).*Pr.*(abs((beta.*g.*nu.^(-1).*Pr.*(u+(-1).*u_a)).^(1/3))*sign((beta.*g.*nu.^(-1).*Pr.*(u+(-1).*u_a))))^(-2);
+
+    
 end
 
 end

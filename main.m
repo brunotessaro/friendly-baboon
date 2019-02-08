@@ -79,18 +79,29 @@ for n=1:nStep-1
     disp(['Time = ' num2str(timeParams.dt*n)  '  Iter = ' num2str(iter) '    Res = ' num2str(norm(r(nodeInfo.free))) '    ResAdm = ' num2str(norm(r(nodeInfo.free))/ri)]);
     
     % Start newton loop
-    while(norm(r(nodeInfo.free))/ri > 1e-10)
+    while(norm(r(nodeInfo.free))/ri > 1e-12)
         
         % Iteration counter
         iter=iter+1;
-            
+        dphi = zeros(2*nNds,1);
+
         % Calculate solution on the next iterative step
         dphi(nodeInfo.free) = - K(nodeInfo.free,nodeInfo.free)\r(nodeInfo.free);
         
         % Mount solution vectors
         u(:,n+1) =  u(:,n+1) + dphi(1:nNds);
         c(:,n+1) =  c(:,n+1) + dphi(nNds+1:2*nNds);
-                
+        
+        % Since 'c' cannot be greater than 1, once it reaches this values the DoF is removed from the
+        % system of equations (altering nodeInfo.free) and it is fixed to 1.
+        aux = find(c(:,n+1)>1);
+        if(~isempty(aux))       
+            c(aux,n+1) = 1;
+            for i=1:length(aux)
+                nodeInfo.free(find(nodeInfo.free == aux(i)+nNds)) = [];
+            end
+        end
+        
         % Calculate residual and tangent matrix
         [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u(:,n+1), u(:,n), c(:,n+1), c(:,n), rates, u_inf(n), params);
         
@@ -104,10 +115,15 @@ end
 writeGmsh(meshParams.fileName, nodeInfo, u, t)
 writeGmsh(meshParams.fileName, nodeInfo, c, t)
 
+idx = find(abs(nodeInfo.X - 0.016/4) < 0.0001)
+
 %Plotting in 1D
 figure(1)
 hold on
-plot(t/60,u(end,:))
+plot(t/60,u(idx,:))
+figure(2)
+hold on
+plot(t/60,c(idx,:))
 % 
 % figure(2)
 % hold on
