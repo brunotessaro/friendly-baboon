@@ -31,7 +31,7 @@ t = linspace(timeParams.t0,timeParams.tf,nStep);
 %% Calculation of time dependet variables
 
 % Fire temperature
-u_inf = 20 + 345*log10(8*t/60+1);
+u_inf = timeParams.u0 + 345*log10(8*t/60+1);
 
 %% Matrix initialization and BC/IC imposition
 
@@ -62,14 +62,14 @@ for n=1:nStep-1
     if n == 1
         [rates] = getFieldRates(nodeInfo, elemInfo, bcInfo, u(:,n), u(:,n), c(:,n) ,c(:,n), u_inf(n), params);
     else
-        [rates] = getFieldRates(nodeInfo, elemInfo, bcInfo, u(:,n), u(:,n-1), c(:,n), c(:,n-1), u_inf(n), params);
+        [rates] = getFieldRates(nodeInfo, elemInfo, bcInfo, u(:,n), u(:,n-1), c(:,n), c(:,n-1), u_inf(n+1), params);
     end
     % Initialize next newton step
     u(:,n+1) = u(:,n);
     c(:,n+1) = c(:,n);
     
     % Calculate residual and tangent matrix
-    [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u(:,n+1), u(:,n), c(:,n+1), c(:,n), rates, u_inf(n), params);
+    [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u(:,n+1), u(:,n), c(:,n+1), c(:,n), rates, u_inf(n+1), params);
     
     % Calculate aux parameters
     iter = 0;
@@ -103,7 +103,7 @@ for n=1:nStep-1
         end
         
         % Calculate residual and tangent matrix
-        [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u(:,n+1), u(:,n), c(:,n+1), c(:,n), rates, u_inf(n), params);
+        [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u(:,n+1), u(:,n), c(:,n+1), c(:,n), rates, u_inf(n+1), params);
         
         % Display iteration info
         disp(['Time = ' num2str(timeParams.dt*n)  '  Iter = ' num2str(iter) '    Res = ' num2str(norm(r(nodeInfo.free))) '    ResAdm = ' num2str(norm(r(nodeInfo.free))/norm(ri))]);     
@@ -115,16 +115,19 @@ end
 writeGmsh(meshParams.fileName, nodeInfo, u, t)
 writeGmsh(meshParams.fileName, nodeInfo, c, t)
 
-idx = find(abs(nodeInfo.X - 0.016/4) < 0.0001)
+idx = find(abs(nodeInfo.X - 0.0163*0.25) < 0.0001);
+
 
 %Plotting in 1D
 figure(1)
 hold on
-plot(t/60,u(idx,:))
+grid on
+plot(t/60,u(idx,:), '-.m')
 figure(2)
 hold on
-plot(t/60,c(idx,:))
-% 
+grid on
+plot(t/60,c(idx,:), '-.m')
+
 % figure(2)
 % hold on
 % plot(t/60,c(2,:))
