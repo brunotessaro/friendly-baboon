@@ -115,18 +115,18 @@ end
 writeGmsh(meshParams.fileName, nodeInfo, u, t)
 writeGmsh(meshParams.fileName, nodeInfo, c, t)
 
-idx = find(abs(nodeInfo.X - 0.0163*0.25) < 0.0001);
 
+idx1 = find(abs(nodeInfo.X - 0.0163*0.25) < 0.0001);
+idx2 = find(abs(nodeInfo.X - 0.0163*0.5) < 0.0001);
+idx3 = length(nodeInfo.X);
 
 %Plotting in 1D
+
 figure(1)
-hold on
+plot(t/60,u(idx1,:),t/60,u(idx2,:),t/60,u(idx3,:))
+legend('d = L/4 (mm)', 'd = L/2 (mm)', 'd = L (mm)', 'Location', 'northwest')
+ylim([0 800])
 grid on
-plot(t/60,u(idx,:), '-.m')
-figure(2)
-hold on
-grid on
-plot(t/60,c(idx,:), '-.m')
 
 % figure(2)
 % hold on
