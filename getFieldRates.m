@@ -1,4 +1,4 @@
-function [rates] = getFieldRates(nodeInfo, elemInfo, bcInfo, u, u_n, c, c_n, u_inf, params)
+function [rates] = getFieldRates(nodeInfo, elemInfo, bcInfo, u, u_inf, params)
 %-----------------------------------------------------------------------------------
 % Description: This function calculate the temperature and concentration rates in a given time step. 
 %               
@@ -6,9 +6,7 @@ function [rates] = getFieldRates(nodeInfo, elemInfo, bcInfo, u, u_n, c, c_n, u_i
 %                   elemInfo = struct containing element related info.
 %                   bcInfo = struct containing boundary conditions info.
 %                   u = temperature on the desired time step.
-%                   u_n = temperature on the previous time step.
-%                   c = concentration on the desired time step.
-%                   c_n = concentration on the previous time step.
+%                   u_inf = input fire temperature.
 %                   params = struct containing information of physical and numerical parameters.
 %
 % Output Variables : rates = struct containing the rates in the desired time step.
@@ -26,14 +24,10 @@ nNds = size(X,1);
 % Get physical parameters
 Q = params.Q;
 sig = params.sig;
-A = params.A;
-eta = params.eta;
 
 % Initialize global matrices
 Fu = zeros(nNds,1);
-Fc = zeros(nNds,1);
 Ku = zeros(nNds);
-Kc = zeros(nNds);
 udot = zeros(nNds,1);
 
 %% Assembly of volume element contributions
@@ -49,9 +43,7 @@ for i=1:size(volElemIdx,1)
     
     % Initialize elemental matrices
     Ku_e = zeros(size(Te,2));
-    Kc_e = zeros(size(Te,2));
     Fu_e = zeros(size(Te,2),1);
-    Fc_e = zeros(size(Te,2),1);
     
     % Loop trough integration points
     for ig=1:size(gWts,2)
@@ -68,27 +60,20 @@ for i=1:size(volElemIdx,1)
             M = psi.sf(ig,:)'*psi.sf(ig,:);
             
             % Get material point quantities
-            [igMatParams] = materialSubRoutineVol(psi.sf(ig,:)*u(Te),psi.sf(ig,:)*u_n(Te),psi.sf(ig,:)*c(Te),psi.sf(ig,:)*c_n(Te), params);
+            [igMatParams] = materialSubRoutineVol(psi.sf(ig,:)*u(Te), params);
             k = igMatParams.k;
             Cp = igMatParams.Cp;
             rho = igMatParams.rho;
-            omega = igMatParams.omega;      
             
             % Calculate temperature eq. elemental matrices
             Ku_e = Ku_e + gWts(ig)*(M*rho*Cp)*det(J);
-            Fu_e = Fu_e + gWts(ig)*(-B'*k*B*u(Te) + M*Q(Te))*det(J);            
-
-            % Calculate concentration eq. elemental matrices
-            Kc_e = Kc_e + gWts(ig)*M*det(J);
-            Fc_e = Fc_e + gWts(ig)*(psi.sf(ig,:)'*A*(1-psi.sf(ig,:)*c(Te))^eta*omega)*det(J); 
+            Fu_e = Fu_e + gWts(ig)*(-B'*k*B*u(Te))*det(J);            
     
     end 
     
     % Assembly of global matrices
     Fu(Te) = Fu(Te) + Fu_e;
-    Fc(Te) = Fc(Te) + Fc_e;
     Ku(Te,Te) = Ku(Te, Te) + Ku_e;
-    Kc(Te,Te) = Kc(Te, Te) + Kc_e;
 end
 
 %% Assembly of boundary element contributions
@@ -218,11 +203,9 @@ end
 
 % Solve the system to get rates
 udot(nodeInfo.free(1:nNds)) = Ku(nodeInfo.free(1:nNds),nodeInfo.free(1:nNds))\Fu(nodeInfo.free(1:nNds));
-cdot = Kc\Fc;
 
 % Assign to struct
 rates.udot = udot;
-rates.cdot = cdot;
 
 end
 

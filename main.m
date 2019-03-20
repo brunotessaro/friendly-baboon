@@ -16,9 +16,9 @@ nNds = size(nodeInfo.X,1);
 
 % Struct assigning and data fixing (here dt and alpha are introduced in params to save space)
 params = matParams;
-params.Q = params.Q*ones(nNds,1);
 params.dt = timeParams.dt;
 params.alpha = timeParams.alpha;
+params.GFRP = load('GFRP.mat');
 
 %% Time discretization
 
@@ -37,12 +37,9 @@ u_inf = timeParams.u0 + 345*log10(8*t/60+1);
 
 % Solution initialization
 u = zeros(nNds,nStep);
-c = zeros(nNds,nStep);
-dphi = zeros(2*nNds,1);
 
 % Initial condition imposition
 u(:,1) = timeParams.u0*ones(nNds,1);
-c(:,1) = timeParams.c0*ones(nNds,1);
 
 % Imposing temperature BC 
 for i=1:size(bcInfo,2)
@@ -57,19 +54,16 @@ end
 for n=1:nStep-1
     
     % Calculate rates at first time step
-    % Obs: Since rates are calculated in n and the n-1 is required for the calculation of Cp in the 
+    % Obs: Since rates are calculated in n and the n-1 is required for the calculation of Cp in the
     % material point one has to countermeasure when n == 1
-    if n == 1
-        [rates] = getFieldRates(nodeInfo, elemInfo, bcInfo, u(:,n), u(:,n), c(:,n) ,c(:,n), u_inf(n), params);
-    else
-        [rates] = getFieldRates(nodeInfo, elemInfo, bcInfo, u(:,n), u(:,n-1), c(:,n), c(:,n-1), u_inf(n+1), params);
-    end
+    
+    [rates] = getFieldRates(nodeInfo, elemInfo, bcInfo, u(:,n), u_inf(n), params);
+    
     % Initialize next newton step
     u(:,n+1) = u(:,n);
-    c(:,n+1) = c(:,n);
     
     % Calculate residual and tangent matrix
-    [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u(:,n+1), u(:,n), c(:,n+1), c(:,n), rates, u_inf(n+1), params);
+    [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u(:,n+1), u(:,n), rates, u_inf(n+1), params);
     
     % Calculate aux parameters
     iter = 0;
@@ -79,31 +73,20 @@ for n=1:nStep-1
     disp(['Time = ' num2str(timeParams.dt*n)  '  Iter = ' num2str(iter) '    Res = ' num2str(norm(r(nodeInfo.free))) '    ResAdm = ' num2str(norm(r(nodeInfo.free))/ri)]);
     
     % Start newton loop
-    while(norm(r(nodeInfo.free))/ri > 1e-12)
+    while(norm(r(nodeInfo.free))/ri > 1e-6)
         
         % Iteration counter
         iter=iter+1;
-        dphi = zeros(2*nNds,1);
+        dphi = zeros(nNds,1);
 
         % Calculate solution on the next iterative step
         dphi(nodeInfo.free) = - K(nodeInfo.free,nodeInfo.free)\r(nodeInfo.free);
         
         % Mount solution vectors
         u(:,n+1) =  u(:,n+1) + dphi(1:nNds);
-        c(:,n+1) =  c(:,n+1) + dphi(nNds+1:2*nNds);
-        
-        % Since 'c' cannot be greater than 1, once it reaches this values the DoF is removed from the
-        % system of equations (altering nodeInfo.free) and it is fixed to 1.
-        aux = find(c(:,n+1)>1);
-        if(~isempty(aux))       
-            c(aux,n+1) = 1;
-            for i=1:length(aux)
-                nodeInfo.free(find(nodeInfo.free == aux(i)+nNds)) = [];
-            end
-        end
         
         % Calculate residual and tangent matrix
-        [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u(:,n+1), u(:,n), c(:,n+1), c(:,n), rates, u_inf(n+1), params);
+        [K, r] = elementSubRoutine(nodeInfo, elemInfo, bcInfo, u(:,n+1), u(:,n), rates, u_inf(n+1), params);
         
         % Display iteration info
         disp(['Time = ' num2str(timeParams.dt*n)  '  Iter = ' num2str(iter) '    Res = ' num2str(norm(r(nodeInfo.free))) '    ResAdm = ' num2str(norm(r(nodeInfo.free))/norm(ri))]);     
@@ -113,27 +96,30 @@ end
 
 %% Writting gmsh files for vizualization
 writeGmsh(meshParams.fileName, nodeInfo, u, t)
-writeGmsh(meshParams.fileName, nodeInfo, c, t)
 
-idx = find(abs(nodeInfo.X - 0.0163*0.25) < 0.0001);
 
+idx1 = find(abs(nodeInfo.X - 0.0163*0.25) < 0.0001);
+idx2 = find(abs(nodeInfo.X - 0.0163*0.5) < 0.0001);
+idx3 = length(nodeInfo.X);
+
+idx = [idx1, idx2, idx3];
 
 %Plotting in 1D
 figure(1)
-hold on
+plot(t/60,u(idx1,:),t/60,u(idx2,:),t/60,u(idx3,:))
 grid on
-plot(t/60,u(idx,:), '-.m')
-figure(2)
-hold on
-grid on
-plot(t/60,c(idx,:), '-.m')
+
+% figure(2)
+% hold on
+% grid on
+% plot(t/60,c(end,:), '-.m')
 
 % figure(2)
 % hold on
 % plot(t/60,c(2,:))
 
 % plot1D(u, nodeInfo.X, t, [0 1000], [0 0.016])
-% plot1D(c, nodeInfo.X, t, [0 1.2], [0 0.016])
+
 
 
 

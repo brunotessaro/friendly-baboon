@@ -1,110 +1,29 @@
-function [igMatParams] = materialSubRoutineVol(u, u_n, c, c_n, params)
+function [igMatParams] = materialSubRoutineVol(u, params)
 %-----------------------------------------------------------------------------------
 % Description: This function calculates the volumetric material properties and derivatives. 
 %               
 % Input Variables : u = temeprature on integration point.
-%                   u_n = temeprature on integration point on previous time step.
-%                   c = concentration on integration point.
-%                   c_n = concentration on integration point on previous time step.
 %                   params = struct containing material parameters.
 %
 % Output Variables : igMatParams = struct containing all the quantities calculated in the gauss pt.
 %                    
 %-----------------------------------------------------------------------------------
 %% Get auxiliary paramenters 
-
-k_a = params.k_a;
-k_b = params.k_b;
-rho_a = params.rho_a;
-rho_b = params.rho_b;
-Cp_a = params.Cp_a;
-Cp_b = params.Cp_b;
-Cp_d = params.Cp_d;
-R = params.R;
-E = params.E;
+GFRP = params.GFRP.GFRP;
 
 %% Calculate integration point quantities
-
-% The quantities here presented are calculated symbolic on Mathematica and exported aumtomaticly to
-% avoid typing or derivative errors.
-
-% Conduction coeff and concentration derivative
-k = (c.*k_a.^(-1)+(1+(-1).*c).*k_b.^(-1)).^(-1);
-dk_c = k_a.*(k_a+(-1).*k_b).*k_b.*(k_a+(-1).*c.*k_a+c.*k_b).^(-2);
-
-% Density and concentration derivative
-rho = c.*rho_a+(1+(-1).*c).*rho_b;
-drho_c = rho_a+(-1).*rho_b;
-
-% Omega and temperature derivative
-omega = exp((-1).*E.*R.^(-1).*u.^(-1));
-domega_u = (E*exp(-E/(R*u)))/(R*u^2);    % Mathematica was giving weird results so this was calculated by hand
-
-% Heat Capacity - Bai, Thermal modeling - Table (1) - page 146 
-% Obs: since the author uses a numerical trick to calculate the derivative dc/du one has to place
-% countermeasures in the case u does not change (u == u_n) in order to avoid division by 0.
-% if (u == u_n)
-%     Cp = (1+(-1).*c).*Cp_b.*rho_b.*(c.*rho_a+(1+(-1).*c).*rho_b).^(-1)+Cp_a.*(1+(-1).* ...
-%         (1+(-1).*c).*rho_b.*(c.*rho_a+(1+(-1).*c).*rho_b).^(-1));
-%     dCp_c = (Cp_a+(-1).*Cp_b).*rho_a.*rho_b.*(c.*(rho_a+(-1).*rho_b)+rho_b).^(-2);
-%     dCp_u = 0;
-% else
-%     Cp = (1+(-1).*c).*Cp_b.*rho_b.*(c.*rho_a+(1+(-1).*c).*rho_b).^(-1)+Cp_a.*(1+(-1).* ...
-%         (1+(-1).*c).*rho_b.*(c.*rho_a+(1+(-1).*c).*rho_b).^(-1))+(c+(-1).*c_n).* ...
-%         Cp_d.*(u+(-1).*u_n).^(-1);
-%     dCp_c = (Cp_a+(-1).*Cp_b).*rho_a.*rho_b.*(c.*(rho_a+(-1).*rho_b)+rho_b).^(-2)+Cp_d.*(u+(-1).*u_n).^(-1);
-%     dCp_u = ((-1).*c+c_n).*Cp_d.*(u+(-1).*u_n).^(-2);
-% end
-
-% Heat Capacity - Bai, Thermal modeling - Table (1) - page 146 
-% Obs: since the author uses a numerical trick to calculate the derivative dc/du one has to place
-% countermeasures in the case u does not change (u == u_n) in order to avoid division by 0.
-if (u == u_n)
-    Cp = (1+(-1).*(1+(-1).*c).*rho_b.*(c.*rho_a+(1+(-1).*c).*rho_b).^(-1)).*(896+ ...
-         0.879E0.*u)+(1+(-1).*c).*rho_b.*(c.*rho_a+(1+(-1).*c).*rho_b).^(-1).*(1097+ ...
-         0.1583E1.*u);
-    dCp_c = rho_a.*rho_b.*(c.*(rho_a+(-0.1E1).*rho_b)+rho_b).^(-2).*((-0.201E3)+(-0.704E0).*u);
-    dCp_u = 0.1583E1+(-0.704E0).*c.*rho_a.*(0.1E1.*c.*rho_a+0.1E1.*rho_b+(-0.1E1).*c.*rho_b).^(-1);
-else
-    Cp = (1+(-1).*(1+(-1).*c).*rho_b.*(c.*rho_a+(1+(-1).*c).*rho_b).^(-1)).*(896+ ...
-         0.879E0.*u)+(1+(-1).*c).*rho_b.*(c.*rho_a+(1+(-1).*c).*rho_b).^(-1).*(1097+ ...
-         0.1583E1.*u)+(c+(-1).*c_n).*Cp_d.*(u+(-1).*u_n).^(-1);
-    dCp_c = (c.*(rho_a+(-0.1E1).*rho_b)+rho_b).^(-2).*(u+(-0.1E1).*u_n).^(-1).*(c.*Cp_d.* ...
-            (0.2E1.*rho_a+(-0.2E1).*rho_b).*rho_b+c.^2.*Cp_d.*(rho_a.^2+(-0.2E1).*rho_a.*rho_b+ ...
-            rho_b.^2)+rho_b.*(Cp_d.*rho_b+rho_a.*u.*((-0.201E3)+(-0.704E0).*u+0.704E0.*u_n)+ ...
-            0.201E3.*rho_a.*u_n));
-    dCp_u = 0.1583E1+(-0.704E0).*c.*rho_a.*(0.1E1.*c.*rho_a+0.1E1.*rho_b+(-0.1E1).*c.* ...
-            rho_b).^(-1)+((-1).*c+c_n).*Cp_d.*(u+(-1).*u_n).^(-2);
-end
-
-% Heat Capacity - Bai, Thermophysical properties - Eq (51) - Page 38
-% Cp = 0.228266E6.*(1+(-1).*c).*exp(1).^((-0.265279E5).*R.^(-1).*u.^(-1)) ...
-%     +(1+(-1).*(1+(-1).*c).*rho_b.*(c.*rho_a+(1+(-1).*c).*rho_b).^(-1)).*(896+ ...
-%     0.879E0.*u)+(1+(-1).*c).*rho_b.*(c.*rho_a+(1+(-1).*c).*rho_b).^(-1).*(1097+ ...
-%     0.1583E1.*u);
-% 
-% dCp_c = exp(1).^((-0.265279E5).*R.^(-1).*u.^(-1)).*(c.*(rho_a+(-0.1E1).*rho_b)+ ...
-%     rho_b).^(-2).*((-0.228266E6).*c.^2.*rho_a.^2+c.*((-0.456532E6)+ ...
-%     0.456532E6.*c).*rho_a.*rho_b+(-0.228266E6).*(0.1E1+(-0.1E1).*c).^2.* ...
-%     rho_b.^2+exp(1).^(0.265279E5.*R.^(-1).*u.^(-1)).*rho_a.*rho_b.*((-0.201E3)+ ...
-%     (-0.704E0).*u));
-% 
-% dCp_u = 0.1583E1+(-0.704E0).*c.*rho_a.*(0.1E1.*c.*rho_a+0.1E1.*rho_b+(-0.1E1).*c.* ...
-%     rho_b).^(-1)+(0.605541E10+(-0.605541E10).*c).*exp(1).^((-0.265279E5) ...
-%     .*R.^(-1).*u.^(-1)).*R.^(-1).*u.^(-2);
-
-
+[k, dk_u] = getTableValues(GFRP.kx, u);
+[Cp, dCp_u] = getTableValues(GFRP.cp, u);
+[rho, drho_u] = getTableValues(GFRP.rho, u);
 
 % Assign calculated quantities to struct
 igMatParams.k = k;
 igMatParams.Cp = Cp;
 igMatParams.rho = rho;
-igMatParams.omega = omega;
-igMatParams.dk_c = dk_c;
-igMatParams.dCp_c = dCp_c;
+igMatParams.dk_u = dk_u;
 igMatParams.dCp_u = dCp_u;
-igMatParams.drho_c = drho_c;
-igMatParams.domega_u = domega_u;
+igMatParams.drho_u = drho_u;
+
 
 end
 
