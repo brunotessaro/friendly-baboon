@@ -229,7 +229,6 @@ for i=1:size(bcInfo,2)
 end
 
 %% Grouping global matrices for newton iteration
-
 r = r_u;
 K = K_uu;
 

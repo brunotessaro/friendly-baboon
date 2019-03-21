@@ -3,7 +3,7 @@
 % Author: Bruno Aguirre Tessaro, IST - Lisboa.
 % Contact: bruno.tessaro@tecnico.ulisboa.com
 %-------------------------------------------------------------------------------------------------------
-clear, clc, clear
+clear, clc
 
 %% Data reading and assignments
 
@@ -95,30 +95,34 @@ for n=1:nStep-1
 end
 
 %% Writting gmsh files for vizualization
-writeGmsh(meshParams.fileName, nodeInfo, u, t)
+% writeGmsh(meshParams.fileName, nodeInfo, u, t)
+
+%% Calculate field on arbitrary position
+xp = 0.004;
+[u_xp] = solOnArbitraryPos(nodeInfo, elemInfo, u, xp);
 
 
-idx1 = find(abs(nodeInfo.X - 0.0163*0.25) < 0.0001);
-idx2 = find(abs(nodeInfo.X - 0.0163*0.5) < 0.0001);
-idx3 = length(nodeInfo.X);
 
-idx = [idx1, idx2, idx3];
 
-%Plotting in 1D
-figure(1)
-plot(t/60,u(idx1,:),t/60,u(idx2,:),t/60,u(idx3,:))
-grid on
-
+% idx1 = find(abs(nodeInfo.X - 0.0163*0.25) < 0.0001);
+% idx2 = find(abs(nodeInfo.X - 0.0163*0.5) < 0.0001);
+% idx3 = length(nodeInfo.X);
+% 
+% idx = [idx1, idx2, idx3];
+% 
+% u_aux = load('u.mat');
+% u_aux = u_aux.u;
+% 
+% 
+% %Plotting in 1D
 % figure(2)
-% hold on
+% a = plot(t/60,u(idx1,:), 'k', t/60,u(idx2,:),'c',t/60,u(idx3,:),'r',t/60,u_aux(idx1,:), 'k --',t/60,u_aux(idx2,:),'c --',t/60,u_aux(idx3,:),'r--')
+% legend('d=L/4 No Arrehnius', 'd=L/2 No Arrehnius', 'd=L No Arrehnius','d=L/4 Normal', 'd=L/2 Normal', 'd=L Normal', 'Location', 'northwest')
+% ylim([0 800])
 % grid on
-% plot(t/60,c(end,:), '-.m')
 
-% figure(2)
-% hold on
-% plot(t/60,c(2,:))
 
-% plot1D(u, nodeInfo.X, t, [0 1000], [0 0.016])
+% ig_dt60n65 = u
 
 
 
