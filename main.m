@@ -79,7 +79,7 @@ for n=1:nStep-1
     disp(['Time = ' num2str(timeParams.dt*n)  '  Iter = ' num2str(iter) '    Res = ' num2str(norm(r(nodeInfo.free))) '    ResAdm = ' num2str(norm(r(nodeInfo.free))/ri)]);
     
     % Start newton loop
-    while(norm(r(nodeInfo.free))/ri > 1e-12)
+    while(norm(r(nodeInfo.free))/ri > 1e-8)
         
         % Iteration counter
         iter=iter+1;
@@ -116,27 +116,30 @@ writeGmsh(meshParams.fileName, nodeInfo, u, t)
 writeGmsh(meshParams.fileName, nodeInfo, c, t)
 
 %% Get solution on arbitraty positions
-xp = 0.005;
-u_xp = solOnArbitraryPos(nodeInfo, elemInfo, u, xp);
+xp1 = 4.2/1000;
+u_xp1 = solOnArbitraryPos(nodeInfo, elemInfo, u, xp1);
 
-% idx1 = find(abs(nodeInfo.X - 0.0163*0.25) < 0.0001);
-% idx2 = find(abs(nodeInfo.X - 0.0163*0.5) < 0.0001);
-% idx3 = length(nodeInfo.X);
+xp2 = 0.0162;
+u_xp2 = solOnArbitraryPos(nodeInfo, elemInfo, u, xp2);
+
+xp3 = 0.0162;
+u_xp2 = solOnArbitraryPos(nodeInfo, elemInfo, u, xp2);
+
+%% Plotting in 1D
 % 
-% %Plotting in 1D
-% 
-% figure(1)
-% plot(t/60,u(idx1,:),t/60,u(idx2,:),t/60,u(idx3,:))
-% legend('d = L/4 (mm)', 'd = L/2 (mm)', 'd = L (mm)', 'Location', 'northwest')
-% ylim([0 800])
-% grid on
-% 
-% % figure(2)
-% % hold on
-% % plot(t/60,c(2,:))
-% 
-% % plot1D(u, nodeInfo.X, t, [0 1000], [0 0.016])
-% % plot1D(c, nodeInfo.X, t, [0 1.2], [0 0.016])
+figure(1)
+plot(t/60,u_xp1)
+legend('d = L/4 (mm)', 'd = L/2 (mm)', 'd = L (mm)', 'Location', 'northwest')
+ylim([0 800])
+grid on
+hold on
+
+% WF_dt15_n65 = u_xp1;
+% WF_dt15_n65_x_end = u_xp2;
+% save('../results/WF_dt15_n65.mat', 'WF_dt15_n65')
+% save('../results/WF_dt15_n65_x_end.mat', 'WF_dt15_n65_x_end')
+
+
 
 
 

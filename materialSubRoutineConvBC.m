@@ -21,16 +21,18 @@ nu = params.nu;
 %% Calculate integration point quantities
 
 % Convective coeff and concentration derivative
-h = 0.14E0.*k_g.*(beta.*g.*nu.^(-1).*Pr.*(u+(-1).*u_a)).^(1/3);
+%h = 0.14E0.*k_g.*(beta.*g.*nu.^(-1).*Pr.*(u+(-1).*u_a)).^(1/3);
+
+% Using SIGN function to make sure correct root is used (cubic function has more then 1 solution)
 h = 0.14E0.*k_g.*abs((beta.*g.*nu.^(-1).*Pr.*(u+(-1).*u_a)).^(1/3))*sign((beta.*g.*nu.^(-1).*Pr.*(u+(-1).*u_a)));
 
 if (u_a == u)
     dh_u = 0;
 else
-    dh_u = 0.466667E-1.*beta.*g.*k_g.*nu.^(-1).*Pr.*(beta.*g.*nu.^(-1).*Pr.*(u+(-1).*u_a)).^(-2/3);
-    dh_u = 0.466667E-1.*beta.*g.*k_g.*nu.^(-1).*Pr.*(abs((beta.*g.*nu.^(-1).*Pr.*(u+(-1).*u_a)).^(1/3))*sign((beta.*g.*nu.^(-1).*Pr.*(u+(-1).*u_a))))^(-2);
-
+    % dh_u = 0.466667E-1.*beta.*g.*k_g.*nu.^(-1).*Pr.*(beta.*g.*nu.^(-1).*Pr.*(u+(-1).*u_a)).^(-2/3);
     
+    % Using SIGN function to make sure correct root is used(cubic function has more then 1 solution)
+    dh_u = 0.466667E-1.*beta.*g.*k_g.*nu.^(-1).*Pr.*(abs((beta.*g.*nu.^(-1).*Pr.*(u+(-1).*u_a)).^(1/3))*sign((beta.*g.*nu.^(-1).*Pr.*(u+(-1).*u_a))))^(-2);
 end
 
 end
