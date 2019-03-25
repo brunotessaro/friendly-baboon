@@ -213,11 +213,11 @@ for i=1:size(bcInfo,2)
                 end
                 
                 % Calculate temperature eq. residual for radiative bc and tangets
-                re_u = re_u + gWts(ig)*(-alpha*dt*psi.sf(ig,:)'*sig*eps*(u_a^4 - (psi.sf(ig,:)*u(Te))^4))*det(J);
+                re_u = re_u + gWts(ig)*(-alpha*dt*psi.sf(ig,:)'*sig*eps*((u_a + 273.15)^4 - (psi.sf(ig,:)*(u(Te) + 273.15))^4))*det(J);
                 
                 % Calculate tangents
-                Ke_uu = Ke_uu + gWts(ig)*(-alpha*dt*psi.sf(ig,:)'*sig*(deps_u*(u_a^4 - (psi.sf(ig,:)*u(Te))^4)  ...
-                                          -4*eps*(psi.sf(ig,:)*u(Te))^3)*psi.sf(ig,:))*det(J);
+                Ke_uu = Ke_uu + gWts(ig)*(-alpha*dt*psi.sf(ig,:)'*sig*(deps_u*((u_a+273.15)^4 - (psi.sf(ig,:)*(u(Te) + 273.15))^4)  ...
+                                          -4*eps*(psi.sf(ig,:)*(u(Te) + 273.15))^3)*psi.sf(ig,:))*det(J);
 
             end
             

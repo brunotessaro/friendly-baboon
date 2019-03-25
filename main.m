@@ -104,6 +104,11 @@ xp = 0.0162;
 % legend('d=L/4 No Arrehnius', 'd=L/2 No Arrehnius', 'd=L No Arrehnius','d=L/4 Normal', 'd=L/2 Normal', 'd=L Normal', 'Location', 'northwest')
 % ylim([0 800])
 % grid on
+figure(2)
+a = plot(t, u_xp)
+legend('d=L/4 No Arrehnius', 'd=L/2 No Arrehnius', 'd=L No Arrehnius','d=L/4 Normal', 'd=L/2 Normal', 'd=L Normal', 'Location', 'northwest')
+xlim([0 3600])
+grid on
 
 % NA_dt30n129_x_end = NA_dt30n129;
 % save('../results/NA_dt30n129_x=0.162.mat', 'NA_dt30n129_x_end');
