@@ -12,14 +12,18 @@ function [eps, deps_u] = materialSubRoutineRadBC(u, params)
 %% Get auxiliary paramenters 
 
 % Emissivety coeff parameters
-eps_1 = params.eps_1;
-eps_2 = params.eps_2;
+% eps_1 = params.eps_1;
+% eps_2 = params.eps_2;
 
 %% Calculate integration point quantities
+% Emissivety coeff and concentration derivative
+% eps = eps_2+eps_1.*u;
+% deps_u = eps_1;
 
-% Emossivety coeff and concentration derivative
-eps = eps_2+eps_1.*u;
-deps_u = eps_1;
+
+%% Calculate table quantities
+GFRP2 = params.GFRP2.GFRP2;
+[eps, deps_u] = getTableValues(GFRP2.epsilon, u);
 
 end
 

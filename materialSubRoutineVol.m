@@ -9,12 +9,12 @@ function [igMatParams] = materialSubRoutineVol(u, params)
 %                    
 %-----------------------------------------------------------------------------------
 %% Get auxiliary paramenters 
-GFRP = params.GFRP.GFRP;
+GFRP2 = params.GFRP2.GFRP2;
 
 %% Calculate integration point quantities
-[k, dk_u] = getTableValues(GFRP.kx, u);
-[Cp, dCp_u] = getTableValues(GFRP.cp, u);
-[rho, drho_u] = getTableValues(GFRP.rho, u);
+[k, dk_u] = getTableValues(GFRP2.kx, u);
+[Cp, dCp_u] = getTableValues(GFRP2.cp, u);
+[rho, drho_u] = getTableValues(GFRP2.rho, u);
 
 % Assign calculated quantities to struct
 igMatParams.k = k;

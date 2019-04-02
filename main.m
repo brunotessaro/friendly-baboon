@@ -8,7 +8,7 @@ clear, clc
 %% Data reading and assignments
 
 % Read data from input file
-[matParams, meshParams, timeParams] = readData('inputs/NC-SLC03.inp');
+[matParams, meshParams, timeParams] = readData('inputs/comparisonCristina_convBC.inp');
 
 % Get mesh information and number of nodes
 [nodeInfo, elemInfo, bcInfo] = getMeshInfo(meshParams.fileName, meshParams.tags);
@@ -18,20 +18,21 @@ nNds = size(nodeInfo.X,1);
 params = matParams;
 params.dt = timeParams.dt;
 params.alpha = timeParams.alpha;
-params.GFRP = load('GFRP.mat');
+params.GFRP2 = load('GFRP2.mat');
 
 %% Time discretization
 
 % Get number of steps
-nStep = fix((timeParams.tf-timeParams.t0)/timeParams.dt + 1);
+nStep = fix((timeParams.tf-timeParams.t0)/timeParams.dt);
 
 % Get time vector
-t = linspace(timeParams.t0,timeParams.tf,nStep);
+t = linspace(timeParams.t0,timeParams.tf,nStep+1);
 
 %% Calculation of time dependet variables
 
 % Fire temperature
 u_inf = timeParams.u0 + 345*log10(8*t/60+1);
+u_inf = u_inf;
 
 %% Matrix initialization and BC/IC imposition
 
@@ -45,7 +46,7 @@ u(:,1) = timeParams.u0*ones(nNds,1);
 for i=1:size(bcInfo,2)
     for j=1:size(bcInfo{i}{1},1)
         if bcInfo{i}{2} == 0
-            u(nonzeros(elemInfo.T(bcInfo{i}{1}(j),:)),:) = bcInfo{i}{3};
+            u(nonzeros(elemInfo.T(bcInfo{i}{6}(j),:)),:) = bcInfo{i}{3};
         end
     end
 end
@@ -70,7 +71,7 @@ for n=1:nStep-1
     disp(['Time = ' num2str(timeParams.dt*n)  '  Iter = ' num2str(iter) '    Res = ' num2str(norm(r(nodeInfo.free))) '    ResAdm = ' num2str(norm(r(nodeInfo.free))/ri)]);
     
     % Start newton loop
-    while(norm(r(nodeInfo.free))/ri > 1e-6)
+    while(norm(r(nodeInfo.free))/ri >= 1e-8 && norm(r(nodeInfo.free)) >= 1e-8)
         
         % Iteration counter
         iter=iter+1;
@@ -95,8 +96,8 @@ end
 writeGmsh(meshParams.fileName, nodeInfo, u, t)
 
 %% Calculate field on arbitrary position
-xp = 0.0162;
-[u_xp] = solOnArbitraryPos(nodeInfo, elemInfo, u, xp);
+% xp = 4.2/1000;
+% [u_xp] = solOnArbitraryPos(nodeInfo, elemInfo, u, xp);
 
 %% Plotting in 1D
 % figure(2)
@@ -104,14 +105,35 @@ xp = 0.0162;
 % legend('d=L/4 No Arrehnius', 'd=L/2 No Arrehnius', 'd=L No Arrehnius','d=L/4 Normal', 'd=L/2 Normal', 'd=L Normal', 'Location', 'northwest')
 % ylim([0 800])
 % grid on
-figure(2)
-a = plot(t, u_xp)
-legend('d=L/4 No Arrehnius', 'd=L/2 No Arrehnius', 'd=L No Arrehnius','d=L/4 Normal', 'd=L/2 Normal', 'd=L Normal', 'Location', 'northwest')
-xlim([0 3600])
-grid on
 
-% NA_dt30n129_x_end = NA_dt30n129;
-% save('../results/NA_dt30n129_x=0.162.mat', 'NA_dt30n129_x_end');
+u_bruno = u;
+% nplot1 = [1,3:nNds,2]; % for 1D
+nplot1 = [1, 5:4+nNds-2-nNds/2, 2];  % for 2D
+load('misc/aux.mat')
+
+disp(['Norm of the difference between solutions on first time step: ', num2str(norm(aux.u_cristina(aux.nplot,2)-u_bruno(nplot1,2)))])
+disp(['Norm of the difference between solutions on last time step: ', num2str(norm(aux.u_cristina(aux.nplot,2)-u_bruno(nplot1,2)))])
+
+figure(1)
+for i=1:nStep
+    figure(1)
+    plot(aux.xplot(:,1), aux.u_cristina(aux.nplot,i), '--', nodeInfo.X(nplot1,1), u_bruno(nplot1,i))
+    xlim([0 0.0163])
+    ylim([0 1000])
+    pause(0.02)
+end
+
+figure(2)
+plot(aux.xplot(:,1), aux.u_cristina(aux.nplot,i), '--')
+xlim([0 0.0163])
+%ylim([0 1000])
+
+figure(3)
+plot(nodeInfo.X(nplot1,1), u_bruno(nplot1,i))
+xlim([0 0.0163])
+%ylim([0 1000])
+
+
 
 
 

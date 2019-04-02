@@ -21,7 +21,10 @@ T = m.ELE_NODES;
 elemType = m.ELE_INFOS(:,2);
 
 % Get ELEMENTAL indexes corresponding to volume
-volElemIdx = find(m.ELE_TAGS(:,1) == tags.vol);
+volElemIdx = find(m.ELE_TAGS(:,1) == tags.vol(1));
+
+% Get integration rule for volume elements
+volIntRule = tags.vol(2);
 
 % Get boundary ELEMENTAL indexes 
 for i=1:size(tags.boundary,2)
@@ -46,10 +49,9 @@ for i=1:size(restr,1)
     free(find(free == restr(i))) = [];
 end
 
-% Get boundary ELEMENTAL boundary information
+% Get ELEMENTAL boundary information
 for i=1:size(tags.boundary,2)
-    tags.boundary{i}{5} = tags.boundary{i}{1};  % Keeps the physical tag in the 5th position
-    tags.boundary{i}{1} = bcElemIdx{i};
+    tags.boundary{i}{6} = bcElemIdx{i};
 end
 bcInfo = tags.boundary;
 
@@ -62,6 +64,7 @@ nodeInfo.volIdx = volIdx;
 % elemInfo struct assignment
 elemInfo.T = T;
 elemInfo.elemType = elemType;
-elemInfo.volElemIdx = volElemIdx; 
+elemInfo.volElemIdx = volElemIdx;
+elemInfo.volIntRule = volIntRule;
 
 end

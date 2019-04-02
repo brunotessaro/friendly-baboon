@@ -25,15 +25,16 @@ aux = sscanf(read_line(fid), '%s');
 meshParams.fileName = aux;
 
 % read volume physical tag
-aux = sscanf(read_line(fid), '%i');
-meshParams.tags.vol = aux;
+aux = sscanf(read_line(fid), '%i %i');
+meshParams.tags.vol(1) = aux(1);
+meshParams.tags.vol(2) = aux(2);
 
 % read boundary conditions
 aux = sscanf(read_line(fid), '%i');
 nPhysiTags = aux;
 for i=1:nPhysiTags
-    aux = sscanf(read_line(fid), '%i %i %g %g');
-    for j=1:4
+    aux = sscanf(read_line(fid), '%i %i %g %g %i');
+    for j=1:5
         meshParams.tags.boundary{i}{j} = aux(j);
     end
 end

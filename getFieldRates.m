@@ -19,6 +19,7 @@ X = nodeInfo.X;
 T = elemInfo.T;
 elemType = elemInfo.elemType;
 volElemIdx = elemInfo.volElemIdx;
+volIntRule = elemInfo.volIntRule;
 nNds = size(X,1);
 
 % Get physical parameters
@@ -37,7 +38,7 @@ for i=1:size(volElemIdx,1)
     
     % Retrieve element data
     iElem = volElemIdx(i);
-    [psi, gWts, nElNds, dim] = elementCall(elemType(iElem), [2 2]);
+    [psi, gWts, nElNds, dim] = elementCall(elemType(iElem), volIntRule);
     Te = T(iElem,1:nElNds);
     Xe = X(Te,:);
     
@@ -85,11 +86,11 @@ for i=1:size(bcInfo,2)
     if bcInfo{i}{2} == 1
         
         % Loop trough elements in boundary tag
-        for j=1:size(bcInfo{i}{1},1)
+        for j=1:size(bcInfo{i}{6},1)
             
             % Retrieve element data
-            iElem = bcInfo{i}{1}(j);
-            [psi, gWts, nElNds, ~] = elementCall(elemType(iElem), [1 0]);
+            iElem = bcInfo{i}{6}(j);
+            [psi, gWts, nElNds, ~] = elementCall(elemType(iElem), bcInfo{i}{5});
             Te = T(iElem,1:nElNds);
             Xe = X(Te,:);
             
@@ -118,11 +119,11 @@ for i=1:size(bcInfo,2)
     elseif bcInfo{i}{2} == 2
         
         % Loop trough elements in boundary tag
-        for j=1:size(bcInfo{i}{1},1)
+        for j=1:size(bcInfo{i}{6},1)
             
             % Retrieve element data
-            iElem = bcInfo{i}{1}(j);
-            [psi, gWts, nElNds, ~] = elementCall(elemType(iElem), [1 1]);
+            iElem = bcInfo{i}{6}(j);
+            [psi, gWts, nElNds, ~] = elementCall(elemType(iElem), bcInfo{i}{5});
             Te = T(iElem,1:nElNds);
             Xe = X(Te,:);
             
@@ -160,11 +161,11 @@ for i=1:size(bcInfo,2)
     elseif bcInfo{i}{2} == 3
         
         % Loop trough elements in boundary tag
-        for j=1:size(bcInfo{i}{1},1)
+        for j=1:size(bcInfo{i}{6},1)
             
             % Retrieve element data
-            iElem = bcInfo{i}{1}(j);
-            [psi, gWts, nElNds, ~] = elementCall(elemType(iElem), [1 4]);
+            iElem = bcInfo{i}{6}(j);
+            [psi, gWts, nElNds, ~] = elementCall(elemType(iElem), bcInfo{i}{5});
             Te = T(iElem,1:nElNds);
             Xe = X(Te,:);
             
@@ -202,7 +203,7 @@ end
 %% Calculate rates
 
 % Solve the system to get rates
-udot(nodeInfo.free(1:nNds)) = Ku(nodeInfo.free(1:nNds),nodeInfo.free(1:nNds))\Fu(nodeInfo.free(1:nNds));
+udot(nodeInfo.free) = Ku(nodeInfo.free,nodeInfo.free)\Fu(nodeInfo.free);
 
 % Assign to struct
 rates.udot = udot;

@@ -10,7 +10,7 @@ copyfile(fileName, 'results.msh')
 % Open file
 fid = fopen('results.msh','a+');
 
-for i=1:length(t)
+for i=1:length(t)-1
     % write displacements
     fprintf(fid,'$NodeData\n');
     

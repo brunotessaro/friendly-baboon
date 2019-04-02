@@ -1,13 +1,10 @@
-function [psi, gWts, nElNds, dim] = elementCall(elemType, intScal)
+function [psi, gWts, nElNds, dim] = elementCall(elemType, intRule)
 
 switch(elemType)
     
     case 1
         % 2 node
         %        1------2
-        
-        ord = 1;
-        intRule = ord*intScal(1) + ord*intScal(2);
         [absc, gWts]=integrationRule(3, intRule);
         dim = size(absc,1);
         csi = absc(1,:)';
@@ -28,10 +25,7 @@ switch(elemType)
         
     case 8
         % 3 node
-        %        1---3---2
-        
-        ord = 2;
-        intRule = ord*intScal(1) + ord*intScal(2);
+        %        1---3---2        
         [absc, gWts]=integrationRule(3, intRule);
         dim = size(absc,1);
         csi = absc(1,:)';
@@ -251,8 +245,6 @@ switch(elemType)
         %       |        |
         %       1--------2
         
-        ord = 1;
-        intRule = ord*intScal(1) + ord*intScal(2);
         [absc, gWts]=integrationRule(2, intRule);
         dim = size(absc,1);
         csi = absc(1,:)';
@@ -295,9 +287,7 @@ switch(elemType)
         %       8        6
         %       |        |
         %       1---5----2
-        
-        ord = 2;
-        intRule = ord*intScal(1) + ord*intScal(2);
+ 
         [absc, gWts]=integrationRule(2, intRule);
         dim = size(absc,1);
         csi = absc(1,:)';
@@ -373,8 +363,6 @@ switch(elemType)
         %       |        |
         %       1---5----2
         
-        ord = 2;
-        intRule = ord*intScal(1) + ord*intScal(2);
         [absc, gWts]=integrationRule(2, intRule);
         dim = size(absc,1);
         csi = absc(1,:)';
