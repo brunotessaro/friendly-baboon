@@ -107,8 +107,8 @@ writeGmsh(meshParams.fileName, nodeInfo, u, t)
 % grid on
 
 u_bruno = u;
-% nplot1 = [1,3:nNds,2]; % for 1D
-nplot1 = [1, 5:4+nNds-2-nNds/2, 2];  % for 2D
+ nplot1 = [1,3:nNds,2]; % for 1D
+%nplot1 = [1, 5:4+nNds-2-nNds/2, 2];  % for 2D
 load('misc/aux.mat')
 
 disp(['Norm of the difference between solutions on first time step: ', num2str(norm(aux.u_cristina(aux.nplot,2)-u_bruno(nplot1,2)))])
