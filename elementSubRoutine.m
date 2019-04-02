@@ -20,6 +20,7 @@ X = nodeInfo.X;
 T = elemInfo.T;
 elemType = elemInfo.elemType;
 volElemIdx = elemInfo.volElemIdx;
+volIntRule = elemInfo.volIntRule;
 nNds = size(X,1);
 
 % Get physical and numerical parameters
@@ -49,7 +50,7 @@ for i=1:size(volElemIdx,1)
     
     % Retrieve element data
     iElem = volElemIdx(i);
-    [psi, gWts, nElNds, dim] = elementCall(elemType(iElem), [2 2]);
+    [psi, gWts, nElNds, dim] = elementCall(elemType(iElem), volIntRule);
     Te = T(iElem,1:nElNds);
     Xe = X(Te,:);
     
@@ -127,11 +128,11 @@ for i=1:size(bcInfo,2)
     if bcInfo{i}{2} == 1
         
         % Loop trough elements in boundary tag
-        for j=1:size(bcInfo{i}{1},1)
+        for j=1:size(bcInfo{i}{6},1)
             
             % Retrieve element data
-            iElem = bcInfo{i}{1}(j);
-            [psi, gWts, nElNds, ~] = elementCall(elemType(iElem), [1 0]);
+            iElem = bcInfo{i}{6}(j);
+            [psi, gWts, nElNds, ~] = elementCall(elemType(iElem), bcInfo{i}{5});
             Te = T(iElem,1:nElNds);
             Xe = X(Te,:);
             
@@ -160,11 +161,11 @@ for i=1:size(bcInfo,2)
     elseif bcInfo{i}{2} == 2
         
         % Loop trough elements in boundary tag
-        for j=1:size(bcInfo{i}{1},1)
+        for j=1:size(bcInfo{i}{6},1)
             
             % Retrieve element data
-            iElem = bcInfo{i}{1}(j);
-            [psi, gWts, nElNds, ~] = elementCall(elemType(iElem), [3 3]);
+            iElem = bcInfo{i}{6}(j);
+            [psi, gWts, nElNds, ~] = elementCall(elemType(iElem), bcInfo{i}{5});
             Te = T(iElem,1:nElNds);
             Xe = X(Te,:);
             
@@ -180,11 +181,11 @@ for i=1:size(bcInfo,2)
                 
                 % Get ambient temperature and convection coeff, this is problem dependent and the if's
                 % have to be hard coded for different kinds of boundary conditions.
-                if bcInfo{i}{5} == 10
+                if bcInfo{i}{1} == 10
                     u_a = u_inf;
                     h = bcInfo{i}{4};
                     dh_u = 0;
-                elseif bcInfo{i}{5} == 12
+                elseif bcInfo{i}{1} == 12
                     u_a = bcInfo{i}{3};
                     [h, dh_u] = materialSubRoutineConvBC(psi.sf(ig,:)*u(Te), u_a, params);
                 else
@@ -210,11 +211,11 @@ for i=1:size(bcInfo,2)
     elseif bcInfo{i}{2} == 3
         
         % Loop trough elements in boundary tag
-        for j=1:size(bcInfo{i}{1},1)
+        for j=1:size(bcInfo{i}{6},1)
             
             % Retrieve element data
-            iElem = bcInfo{i}{1}(j);
-            [psi, gWts, nElNds, ~] = elementCall(elemType(iElem), [3 3]);
+            iElem = bcInfo{i}{6}(j);
+            [psi, gWts, nElNds, ~] = elementCall(elemType(iElem), bcInfo{i}{5});
             Te = T(iElem,1:nElNds);
             Xe = X(Te,:);
             
@@ -229,10 +230,10 @@ for i=1:size(bcInfo,2)
                 
                 % Get ambient temperature and emissivity coeff, this is problem dependent and the if's
                 % have to be hard coded for different kinds of boundary conditions.
-                if bcInfo{i}{5} == 11
+                if bcInfo{i}{1} == 11
                     [eps, deps_u] = materialSubRoutineRadBC(psi.sf(ig,:)*u(Te), params);
                     u_a = u_inf;
-                elseif bcInfo{i}{5} == 13
+                elseif bcInfo{i}{1} == 13
                     [eps, deps_u] = materialSubRoutineRadBC(psi.sf(ig,:)*u(Te), params);
                     u_a = bcInfo{i}{3};
                 else

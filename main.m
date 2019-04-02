@@ -8,7 +8,7 @@ clear, clc, clear
 %% Data reading and assignments
 
 % Read data from input file
-[matParams, meshParams, timeParams] = readData('inputs/NC-SLC03.inp');
+[matParams, meshParams, timeParams] = readData('inputs/comparisonCristina_convBC.inp');
 
 % Get mesh information and number of nodes
 [nodeInfo, elemInfo, bcInfo] = getMeshInfo(meshParams.fileName, meshParams.tags);
@@ -48,7 +48,7 @@ c(:,1) = timeParams.c0*ones(nNds,1);
 for i=1:size(bcInfo,2)
     for j=1:size(bcInfo{i}{1},1)
         if bcInfo{i}{2} == 0
-            u(nonzeros(elemInfo.T(bcInfo{i}{1}(j),:)),:) = bcInfo{i}{3};
+            u(nonzeros(elemInfo.T(bcInfo{i}{6}(j),:)),:) = bcInfo{i}{3};
         end
     end
 end
